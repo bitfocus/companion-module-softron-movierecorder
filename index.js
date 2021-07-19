@@ -110,26 +110,30 @@ class instance extends instance_skel {
 		switch (id) {
 			case 'record':
 				if (opt.source !== null) {
-					cmd = `sources/${opt.source}/record`
-					type = 'GET'
+					cmd = `sources/record`
+					type = 'PUT'
+					params = opt.source
 				}
 				break
 			case 'pause':
 				if (opt.source !== null) {
-					cmd = `sources/${opt.source}/pause`
-					type = 'GET'
+					cmd = `sources/pause`
+					type = 'PUT'
+					params = opt.source
 				}
 				break
 			case 'resume':
 				if (opt.source !== null) {
-					cmd = `sources/${opt.source}/resume`
-					type = 'GET'
+					cmd = `sources/resume`
+					type = 'PUT'
+					params = opt.source
 				}
 				break
 			case 'stop':
 				if (opt.source !== null) {
-					cmd = `sources/${opt.source}/stop`
-					type = 'GET'
+					cmd = `sources/stop`
+					type = 'PUT'
+					params = opt.source
 				}
 				break
 			case 'lock':

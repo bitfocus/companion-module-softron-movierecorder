@@ -1,6 +1,6 @@
 ## Softron MovieRecorder
 
-Allows you to control [MovieRecorder](https://softron.tv/products/movierecorder) Video from Softron Media Services.
+Allows you to control [MovieRecorder](https://softron.tv/products/movierecorder) from Softron Media Services.
 
 ### Configuration
 

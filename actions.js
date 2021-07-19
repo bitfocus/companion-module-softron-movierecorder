@@ -33,7 +33,8 @@ module.exports = {
 			options: [
 				{
 					type: 'dropdown',
-					label: 'Source',
+					multiple: true,
+					label: 'Source(s)',
 					id: 'source',
 					default: this.sourceListDefault,
 					choices: this.sourceList,
@@ -46,7 +47,8 @@ module.exports = {
 				options: [
 					{
 						type: 'dropdown',
-						label: 'Source',
+						multiple: true,
+						label: 'Source(s)',
 						id: 'source',
 						default: this.sourceListDefault,
 						choices: this.sourceList,
@@ -59,7 +61,8 @@ module.exports = {
 			options: [
 				{
 					type: 'dropdown',
-					label: 'Source',
+					multiple: true,
+					label: 'Source(s)',
 					id: 'source',
 					default: this.sourceListDefault,
 					choices: this.sourceList,
@@ -72,7 +75,8 @@ module.exports = {
 			options: [
 				{
 					type: 'dropdown',
-					label: 'Source',
+					multiple: true,
+					label: 'Source(s)',
 					id: 'source',
 					default: this.sourceListDefault,
 					choices: this.sourceList,
