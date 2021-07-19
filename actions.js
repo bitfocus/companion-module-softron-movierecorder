@@ -28,7 +28,7 @@ module.exports = {
 			}
 		}
 
-		;(actions['record'] = {
+		actions['record'] = {
 			label: 'Record',
 			options: [
 				{
@@ -40,8 +40,8 @@ module.exports = {
 					required: true,
 				},
 			],
-		}),
-			(actions['pause'] = {
+		},
+		actions['pause'] = {
 				label: 'Pause',
 				options: [
 					{
@@ -53,7 +53,7 @@ module.exports = {
 						required: true,
 					},
 				],
-			})
+		}
 		actions['resume'] = {
 			label: 'Resume',
 			options: [

@@ -111,37 +111,37 @@ class instance extends instance_skel {
 			case 'record':
 				if (opt.source !== null) {
 					cmd = `sources/${opt.source}/record`
-					type = 'get'
+					type = 'GET'
 				}
 				break
 			case 'pause':
 				if (opt.source !== null) {
 					cmd = `sources/${opt.source}/pause`
-					type = 'get'
+					type = 'GET'
 				}
 				break
 			case 'resume':
 				if (opt.source !== null) {
 					cmd = `sources/${opt.source}/resume`
-					type = 'get'
+					type = 'GET'
 				}
 				break
 			case 'stop':
 				if (opt.source !== null) {
 					cmd = `sources/${opt.source}/stop`
-					type = 'get'
+					type = 'GET'
 				}
 				break
 			case 'lock':
 				if (opt.source !== null) {
 					cmd = `sources/${opt.source}/lock`
-					type = 'get'
+					type = 'GET'
 				}
 				break
 			case 'unlock':
 				if (opt.source !== null) {
 					cmd = `sources/${opt.source}/unlock`
-					type = 'get'
+					type = 'GET'
 				}
 				break
 			case 'setRecordingName':
@@ -167,8 +167,8 @@ class instance extends instance_skel {
 	setupPolling() {
 		this.stopPolling()
 		this.poll = setInterval(() => {
-			this.sendCommand('sources', 'get')
-			this.sendCommand('destinations', 'get')
+			this.sendCommand('sources', 'GET')
+			this.sendCommand('destinations', 'GET')
 		}, this.pollingInterval)
 	}
 
@@ -203,7 +203,7 @@ class instance extends instance_skel {
 
 	getSources() {
 		this.sources = []
-		this.sendCommand('sources', 'get')
+		this.sendCommand('sources', 'GET')
 	}
 
 	sendCommand(cmd, type, params) {
@@ -277,15 +277,15 @@ class instance extends instance_skel {
 					break
 				case 201: // Created
 					this.status(this.STATUS_OK)
-					this.log('debug', 'Created: ' + res.statusText)
+					this.log('debug', result.statusText)
 					break
 				case 202: // Accepted
 					this.status(this.STATUS_OK)
-					this.log('debug', 'Accepted: ' + res.statusText)
+					this.log('debug', result.statusText)
 					this.debug('Accepted: ', result.status)
 					break
 				case 400: // Bad Request
-					this.log('warn', 'Bad request: ' + res.statusText)
+					this.log('warn', result.statusText)
 					break
 				case 401: // Authentication Failed
 					this.status(this.STATUS_ERROR)
@@ -295,15 +295,15 @@ class instance extends instance_skel {
 					this.errorCount++
 					break
 				case 404: // Not found
-					this.log('warn', 'Not found: ' + res.statusText)
+					this.log('warn', result.statusText)
 					break
 				case 422: // Unprocessable entity
-					this.log('warn', 'Unprocessable entity: ' + res.statusText)
+					this.log('warn', result.statusText)
 					break
 				default:
 					// Unexpected response
 					this.status(this.STATUS_ERROR)
-					this.log('error', 'Unexpected HTTP status code: ' + res.statusText)
+					this.log('error', result.statusText)
 					break
 			}
 		} else {

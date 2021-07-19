@@ -23,6 +23,7 @@ Allows you to control [MovieRecorder](https://softron.tv/products/movierecorder)
 
 ### Available variables
 
-- rec*name*_source_name_ (Current recording name of each source)
-- rec*status*_source_name_ (Current recording status of each source, including: recording, paused, stopped)
-- rec*timecode*_source_name_ (Elapsed recording time of each source)
+- rec_name (Current recording name of each source)
+- rec_status (Current recording status of each source, including: recording, paused, stopped)
+- rec_timecode (Elapsed recording time of each source)
+- rec_destinations (Currently enabled recording destinations of each source)
