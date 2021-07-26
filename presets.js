@@ -69,7 +69,7 @@ exports.getPresets = function () {
 			label: `${source.display_name} Recording Status / Timecode`,
 			bank: {
 				style: 'text',
-				text: `${source.display_name}\\n$(MovieRecorder:rec_status_${source.display_name})\\n$(MovieRecorder:rec_time_${source.display_name})`,
+				text: `${source.display_name}\\n$(MovieRecorder:rec_status_${source.display_name})\\n$(MovieRecorder:rec_time_elapsed_${source.display_name})`,
 				size: 'auto',
 				color: this.rgb(255, 255, 255),
 				bgcolor: this.rgb(0, 0, 0),

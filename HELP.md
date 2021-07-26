@@ -19,11 +19,15 @@ Allows you to control [MovieRecorder](https://softron.tv/products/movierecorder)
 
 ### Available feedback
 
-- Recording Status
+- Recording Active
+- Recording Paused
+- Source Destination Enabled
+- Source Locked
 
 ### Available variables
 
 - rec_name (Current recording name of each source)
 - rec_status (Current recording status of each source, including: recording, paused, stopped)
-- rec_time (Elapsed recording time of each source)
+- rec_time_elapsed (Elapsed recording time of each source)
+- rec_time_remaining (If there is a set end time, the remaining recording time of each source)
 - rec_destinations (Currently enabled recording destinations of each source)
