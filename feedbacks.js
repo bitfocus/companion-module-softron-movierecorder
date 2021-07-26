@@ -18,11 +18,8 @@ exports.initFeedbacks = function () {
 			},
 		],
 		callback: ({ options }) => {
-			for (let s in this.sources) {
-				let source = this.sources[s]
-				if (source.is_recording && source.unique_id == options.source) {
-					return true
-				}
+			if (this.sources[options.source]?.is_recording) {
+				return true
 			}
 		},
 	}

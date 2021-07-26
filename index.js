@@ -21,7 +21,7 @@ class instance extends instance_skel {
 		this.updateVariableDefinitions = updateVariableDefinitions
 		this.updateSourceVariables = updateSourceVariables
 
-		this.sources = []
+		this.sources = {}
 		this.sourceList = []
 		this.destinations = []
 		this.destinationList = []
@@ -57,7 +57,7 @@ class instance extends instance_skel {
 
 	destroy() {
 		this.debug('destroy', this.id)
-		this.sources = []
+		this.sources = {}
 		this.sourceList = []
 		this.destinations = []
 		this.destinationList = []
@@ -206,7 +206,7 @@ class instance extends instance_skel {
 	}
 
 	getSources() {
-		this.sources = []
+		this.sources = {}
 		this.sendCommand('sources', 'GET')
 	}
 
@@ -323,8 +323,13 @@ class instance extends instance_skel {
 		if (cmd.match('/sources') && data) {
 			let originalSourceCount = Object.keys(this.sources).length
 			let newSourceCount = Object.keys(data).length
+			this.sources = {}
 
-			this.sources = data
+			for (let s in data) {
+				let source = data[s]
+				this.sources[source.unique_id] = source
+			}
+
 			this.checkFeedbacks()
 			this.updateSourceVariables()
 

@@ -7,7 +7,7 @@ exports.getPresets = function () {
 			label: `Record ${source.display_name}`,
 			bank: {
 				style: 'text',
-				text: `Record ${source.display_name}`,
+				text: `Record\\n${source.display_name}`,
 				size: 'auto',
 				color: this.rgb(255, 255, 255),
 				bgcolor: this.rgb(0, 0, 0),
@@ -16,7 +16,7 @@ exports.getPresets = function () {
 				{
 					action: 'record',
 					options: {
-						source: `${source.unique_id}`,
+						source: [source.unique_id],
 					},
 				},
 			],
@@ -24,7 +24,7 @@ exports.getPresets = function () {
 				{
 					type: 'recording',
 					options: {
-						source: `${source.unique_id}`,
+						source: source.unique_id,
 					},
 					style: {
 						bgcolor: this.rgb(200, 0, 0),
@@ -38,7 +38,7 @@ exports.getPresets = function () {
 			label: `Stop ${source.display_name}`,
 			bank: {
 				style: 'text',
-				text: `Stop ${source.display_name}`,
+				text: `Stop\\n${source.display_name}`,
 				size: 'auto',
 				color: this.rgb(255, 255, 255),
 				bgcolor: this.rgb(0, 0, 0),
@@ -47,7 +47,7 @@ exports.getPresets = function () {
 				{
 					action: 'stop',
 					options: {
-						source: `${source.unique_id}`,
+						source: [source.unique_id],
 					},
 				},
 			],
@@ -55,7 +55,7 @@ exports.getPresets = function () {
 				{
 					type: 'recording',
 					options: {
-						source: `${source.unique_id}`,
+						source: source.unique_id,
 					},
 					style: {
 						bgcolor: this.rgb(200, 0, 0),
@@ -78,7 +78,7 @@ exports.getPresets = function () {
 				{
 					type: 'recording',
 					options: {
-						source: `${source.unique_id}`,
+						source: source.unique_id,
 					},
 					style: {
 						bgcolor: this.rgb(200, 0, 0),
@@ -92,7 +92,7 @@ exports.getPresets = function () {
 			label: `${source.display_name} Recording Destinations`,
 			bank: {
 				style: 'text',
-				text: `${source.display_name}\\n$(MovieRecorder:rec_destinations_${source.display_name})`,
+				text: `${source.display_name} Dest:\\n$(MovieRecorder:rec_destinations_${source.display_name})`,
 				size: 'auto',
 				color: this.rgb(255, 255, 255),
 				bgcolor: this.rgb(0, 0, 0),
@@ -101,7 +101,7 @@ exports.getPresets = function () {
 				{
 					type: 'recording',
 					options: {
-						source: `${source.unique_id}`,
+						source: source.unique_id,
 					},
 					style: {
 						bgcolor: this.rgb(200, 0, 0),
