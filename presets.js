@@ -66,7 +66,7 @@ exports.getPresets = function () {
 		})
 		presets.push({
 			category: `Source Info`,
-			label: `${source.display_name} Recording Status / Timecode`,
+			label: `${source.display_name} Recording Status / Time Elapsed`,
 			bank: {
 				style: 'text',
 				text: `${source.display_name}\\n$(MovieRecorder:rec_status_${source.display_name})\\n$(MovieRecorder:rec_time_elapsed_${source.display_name})`,
@@ -86,6 +86,17 @@ exports.getPresets = function () {
 					},
 				},
 			],
+		})
+		presets.push({
+			category: `Source Info`,
+			label: `${source.display_name} Video Format`,
+			bank: {
+				style: 'text',
+				text: `${source.display_name}\\n$(MovieRecorder:video_format_${source.display_name})`,
+				size: 'auto',
+				color: this.rgb(255, 255, 255),
+				bgcolor: this.rgb(0, 0, 0),
+			},
 		})
 		presets.push({
 			category: `Source Info`,
@@ -111,6 +122,28 @@ exports.getPresets = function () {
 			],
 		})
 	}
+	presets.push({
+		category: `Scheduled Recordings`,
+		label: `Active Scheduled Recordings`,
+		bank: {
+			style: 'text',
+			text: `Active Rec:\\n$(MovieRecorder:active_scheduled_rec)`,
+			size: '7',
+			color: this.rgb(255, 255, 255),
+			bgcolor: this.rgb(0, 0, 0),
+		},
+	})
+	presets.push({
+		category: `Scheduled Recordings`,
+		label: `Upcoming Scheduled Recordings`,
+		bank: {
+			style: 'text',
+			text: `Upcoming:\\n$(MovieRecorder:upcoming_scheduled_rec)`,
+			size: '7',
+			color: this.rgb(255, 255, 255),
+			bgcolor: this.rgb(0, 0, 0),
+		},
+	})
 
 	return presets
 }

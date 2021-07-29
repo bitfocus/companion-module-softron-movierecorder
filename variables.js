@@ -1,6 +1,13 @@
 exports.updateVariableDefinitions = function () {
 	const variables = []
-
+	variables.push({
+		label: `Upcoming Scheduled Recordings`,
+		name: `upcoming_scheduled_rec`,
+	})
+	variables.push({
+		label: `Active Scheduled Recordings`,
+		name: `active_scheduled_rec`,
+	})
 	for (let s in this.sources) {
 		let source = this.sources[s]
 		variables.push({
@@ -22,6 +29,10 @@ exports.updateVariableDefinitions = function () {
 		variables.push({
 			label: `Recording Destinations: ${source.display_name}`,
 			name: `rec_destinations_${source.display_name}`,
+		})
+		variables.push({
+			label: `Video Format: ${source.display_name}`,
+			name: `video_format_${source.display_name}`,
 		})
 	}
 
@@ -60,6 +71,7 @@ exports.updateSourceVariables = function () {
 		this.setVariable(`rec_time_remaining_${source.display_name}`, remainingTime)
 		this.setVariable(`rec_name_${source.display_name}`, source.recording_name)
 		this.setVariable(`rec_destinations_${source.display_name}`, destinations)
+		this.setVariable(`video_format_${source.display_name}`, source.video_format)
 	}
 }
 

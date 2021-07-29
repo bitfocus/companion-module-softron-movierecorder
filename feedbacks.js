@@ -105,5 +105,34 @@ exports.initFeedbacks = function () {
 			}
 		},
 	}
+	feedbacks.sourceRecordingName = {
+		type: 'boolean',
+		label: 'Source Recording Name',
+		description: 'If a source has the specified recording name, change the style of the button',
+		style: {
+			color: this.rgb(255, 255, 255),
+			bgcolor: this.rgb(0, 200, 0),
+		},
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Source',
+				id: 'source',
+				choices: this.sourceList,
+				default: this.sourceListDefault,
+			},
+			{
+				type: 'textinput',
+				label: 'Recording Name',
+				id: 'recording_name',
+				default: 'New Recording',
+			},
+		],
+		callback: ({ options }) => {
+			if (this.sources[options.source]?.recording_name == options.recording_name) {
+				return true
+			}
+		},
+	}
 	return feedbacks
 }

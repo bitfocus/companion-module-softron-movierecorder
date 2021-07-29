@@ -173,6 +173,7 @@ class instance extends instance_skel {
 		this.poll = setInterval(() => {
 			this.sendCommand('sources', 'GET')
 			this.sendCommand('destinations', 'GET')
+			this.sendCommand('scheduled_recordings', 'GET')
 		}, this.pollingInterval)
 	}
 
@@ -235,9 +236,9 @@ class instance extends instance_skel {
 			})
 			.then((json) => {
 				let data = json
-				if (data.success) {
+				if (data?.success) {
 					//ignore success messages that do not have data
-				} else if (data.success === false) {
+				} else if (data?.success === false) {
 					this.log('warn', `Command failed: ${cmd}`)
 				} else {
 					this.processData(decodeURI(url), data)
@@ -353,6 +354,48 @@ class instance extends instance_skel {
 				this.updateVariableDefinitions()
 				this.initPresets()
 			}
+		} else if (cmd.match('/scheduled_recordings') && data) {
+			let today = new Date()
+			let weekday = today.getDay()
+			let minutesElapsed = 60 * today.getHours() + today.getMinutes()
+
+			this.upcomingRecordings = []
+			this.currentRecordings = []
+
+			for (let s in data) {
+				let scheduledRec = data[s]
+
+				let recordingStartTime = scheduledRec.start_time
+				let recordingEndTime = scheduledRec.start_time + scheduledRec.duration
+				let recordingStartTimeHHMM = new Date(scheduledRec.start_time * 1000).toISOString().substr(14, 5)
+
+				let recordingName = scheduledRec.name.length > 15 ? scheduledRec.name.substr(0, 13) + '...' : scheduledRec.name
+				let recordingInfo = recordingStartTimeHHMM + ' ' + recordingName
+				if (scheduledRec.is_enabled && scheduledRec.stopped_by_user != true) {
+					if (scheduledRec.weekly_repeated && scheduledRec.recording_days.includes(weekday)) {
+						if (recordingEndTime > minutesElapsed && recordingStartTime <= minutesElapsed) {
+							this.currentRecordings.push(recordingInfo)
+						} else if (recordingStartTime > minutesElapsed) {
+							this.upcomingRecordings.push(recordingInfo)
+						}
+					} else if (scheduledRec.date != '') {
+						let recordingTime = new Date(scheduledRec.date)
+						if (recordingTime.toLocaleDateString('en-US') == today.toLocaleDateString('en-US')) {
+							if (recordingEndTime > minutesElapsed && recordingStartTime <= minutesElapsed) {
+								this.currentRecordings.push(recordingInfo)
+							} else if (recordingStartTime > minutesElapsed) {
+								this.upcomingRecordings.push(recordingInfo)
+							}
+						}
+					}
+				}
+			}
+			this.upcomingRecordings.sort()
+			let upcoming = this.upcomingRecordings.length ? this.upcomingRecordings.join('\\n') : 'None'
+			this.setVariable(`upcoming_scheduled_rec`, upcoming)
+			this.currentRecordings.sort()
+			let current = this.currentRecordings.length ? this.currentRecordings.join('\\n') : 'None'
+			this.setVariable(`active_scheduled_rec`, current)
 		}
 	}
 }

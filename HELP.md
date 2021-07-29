@@ -22,6 +22,7 @@ Allows you to control [MovieRecorder](https://softron.tv/products/movierecorder)
 - Recording Active
 - Recording Paused
 - Source Destination Enabled
+- Source Recording Name
 - Source Locked
 
 ### Available variables
@@ -31,3 +32,6 @@ Allows you to control [MovieRecorder](https://softron.tv/products/movierecorder)
 - rec_time_elapsed (Elapsed recording time of each source)
 - rec_time_remaining (If there is a set end time, the remaining recording time of each source)
 - rec_destinations (Currently enabled recording destinations of each source)
+- video_format (Video resolution and frame rate of each source)
+- upcoming_scheduled_rec (Start time and name of upcoming scheduled recordings for the current day)
+- active_scheduled_rec (Start time and name of scheduled recordings currently in progress)
