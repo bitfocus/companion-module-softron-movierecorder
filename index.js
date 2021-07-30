@@ -164,6 +164,19 @@ class instance extends instance_skel {
 					params = opt.destination
 				}
 				break
+			case 'extendCurrentRecording':
+				if (opt.source !== null && opt.time !== null && this.currentRecordings[opt.source]) {
+					let recording = this.currentRecordings[opt.source]
+					cmd = `scheduled_recordings/${recording.unique_id}`
+					type = 'PUT'
+					params = {
+						duration: recording.duration + opt.time,
+					}
+				} else {
+					cmd = `scheduled_recordings`
+					type = 'GET'
+				}
+				break
 		}
 		this.sendCommand(cmd, type, params) // Execute command
 	}
@@ -239,7 +252,7 @@ class instance extends instance_skel {
 				if (data?.success) {
 					//ignore success messages that do not have data
 				} else if (data?.success === false) {
-					this.log('warn', `Command failed: ${cmd}`)
+					this.log('warn', `Command failed: ${data.error}`)
 				} else {
 					this.processData(decodeURI(url), data)
 				}
@@ -329,8 +342,8 @@ class instance extends instance_skel {
 			for (let s in data) {
 				let source = data[s]
 				this.sources[source.unique_id] = source
+				this.sources[source.unique_id].scheduled = []
 			}
-
 			this.checkFeedbacks()
 			this.updateSourceVariables()
 
@@ -364,32 +377,55 @@ class instance extends instance_skel {
 
 			for (let s in data) {
 				let scheduledRec = data[s]
-
-				let recordingStartTime = scheduledRec.start_time
-				let recordingEndTime = scheduledRec.start_time + scheduledRec.duration
-				let recordingStartTimeHHMM = new Date(scheduledRec.start_time * 1000).toISOString().substr(14, 5)
-
-				let recordingName = scheduledRec.name.length > 15 ? scheduledRec.name.substr(0, 13) + '...' : scheduledRec.name
-				let recordingInfo = recordingStartTimeHHMM + ' ' + recordingName
-				if (scheduledRec.is_enabled && scheduledRec.stopped_by_user != true) {
+				if (scheduledRec.is_enabled && scheduledRec.stopped_by_user != true && scheduledRec.source_unique_id) {
 					if (scheduledRec.weekly_repeated && scheduledRec.recording_days.includes(weekday)) {
-						if (recordingEndTime > minutesElapsed && recordingStartTime <= minutesElapsed) {
-							this.currentRecordings.push(recordingInfo)
-						} else if (recordingStartTime > minutesElapsed) {
-							this.upcomingRecordings.push(recordingInfo)
-						}
-					} else if (scheduledRec.date != '') {
-						let recordingTime = new Date(scheduledRec.date)
-						if (recordingTime.toLocaleDateString('en-US') == today.toLocaleDateString('en-US')) {
-							if (recordingEndTime > minutesElapsed && recordingStartTime <= minutesElapsed) {
-								this.currentRecordings.push(recordingInfo)
-							} else if (recordingStartTime > minutesElapsed) {
-								this.upcomingRecordings.push(recordingInfo)
-							}
+						this.sources[scheduledRec.source_unique_id].scheduled.push(scheduledRec)
+					} else if (scheduledRec.date) {
+						let recordingDate = new Date(scheduledRec.date)
+						if (recordingDate.toLocaleDateString('en-US') == today.toLocaleDateString('en-US')) {
+							this.sources[scheduledRec.source_unique_id].scheduled.push(scheduledRec)
 						}
 					}
 				}
 			}
+
+			for (let s in this.sources) {
+				let source = this.sources[s]
+				let upcomingSourceRecordings = []
+				let currentSourceRecordings = []
+
+				for (let s in this.sources[source.unique_id].scheduled) {
+					let scheduledRec = this.sources[source.unique_id].scheduled[s]
+					let recordingStartTime = scheduledRec.start_time
+					let recordingEndTime = scheduledRec.start_time + scheduledRec.duration
+					let recordingStartTimeHHMM = new Date(scheduledRec.start_time * 1000).toISOString().substr(14, 5)
+					let recordingEndTimeHHMM = new Date(recordingEndTime * 1000).toISOString().substr(14, 5)
+					let recordingName =
+						scheduledRec.name.length > 15 ? scheduledRec.name.substr(0, 13) + '...' : scheduledRec.name
+					let recordingInfo = recordingStartTimeHHMM + ' ' + recordingName
+
+					if (recordingEndTime > minutesElapsed && recordingStartTime <= minutesElapsed) {
+						this.currentRecordings[source.unique_id] = scheduledRec
+						if (this.currentRecordings.includes(recordingInfo) === false) {
+							this.currentRecordings.push(recordingInfo)
+						}
+						currentSourceRecordings.push(recordingName + '\\n until \\n' + recordingEndTimeHHMM)
+					} else if (recordingStartTime > minutesElapsed) {
+						if (this.upcomingRecordings.includes(recordingInfo) === false) {
+							this.upcomingRecordings.push(recordingInfo)
+						}
+						if (upcomingSourceRecordings.includes(recordingInfo) === false) {
+							upcomingSourceRecordings.push(recordingInfo)
+						}
+					}
+				}
+				upcomingSourceRecordings.sort()
+				let upcoming = upcomingSourceRecordings.length ? upcomingSourceRecordings.join('\\n') : 'None'
+				this.setVariable(`upcoming_rec_${source.display_name}`, upcoming)
+				let current = currentSourceRecordings.length ? currentSourceRecordings.join('\\n') : 'None'
+				this.setVariable(`active_rec_${source.display_name}`, current)
+			}
+
 			this.upcomingRecordings.sort()
 			let upcoming = this.upcomingRecordings.length ? this.upcomingRecordings.join('\\n') : 'None'
 			this.setVariable(`upcoming_scheduled_rec`, upcoming)

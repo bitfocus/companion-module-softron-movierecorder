@@ -11,28 +11,36 @@ exports.updateVariableDefinitions = function () {
 	for (let s in this.sources) {
 		let source = this.sources[s]
 		variables.push({
-			label: `Recording Status: ${source.display_name}`,
+			label: `${source.display_name} Recording Status`,
 			name: `rec_status_${source.display_name}`,
 		})
 		variables.push({
-			label: `Recording Time Elapsed: ${source.display_name}`,
+			label: `${source.display_name} Recording Time Elapsed`,
 			name: `rec_time_elapsed_${source.display_name}`,
 		})
 		variables.push({
-			label: `Recording Time Remaining: ${source.display_name}`,
+			label: `${source.display_name} Recording Time Remaining`,
 			name: `rec_time_remaining_${source.display_name}`,
 		})
 		variables.push({
-			label: `Recording Name: ${source.display_name}`,
+			label: `${source.display_name} Recording Name`,
 			name: `rec_name_${source.display_name}`,
 		})
 		variables.push({
-			label: `Recording Destinations: ${source.display_name}`,
+			label: `${source.display_name} Recording Destinations`,
 			name: `rec_destinations_${source.display_name}`,
 		})
 		variables.push({
-			label: `Video Format: ${source.display_name}`,
+			label: `${source.display_name} Video Format`,
 			name: `video_format_${source.display_name}`,
+		})
+		variables.push({
+			label: `${source.display_name} Upcoming Recordings`,
+			name: `upcoming_rec_${source.display_name}`,
+		})
+		variables.push({
+			label: `${source.display_name} Active Recordings`,
+			name: `active_rec_${source.display_name}`,
 		})
 	}
 

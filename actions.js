@@ -152,6 +152,26 @@ module.exports = {
 				},
 			],
 		}
+		actions['extendCurrentRecording'] = {
+			label: 'Extend Current Recording',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Source',
+					id: 'source',
+					default: this.sourceListDefault,
+					choices: this.sourceList,
+					required: true,
+				},
+				{
+					type: 'number',
+					label: 'Minutes to Extend',
+					id: 'time',
+					default: 5,
+					required: true,
+				},
+			],
+		}
 		return actions
 	},
 }
