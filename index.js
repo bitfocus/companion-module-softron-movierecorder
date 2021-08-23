@@ -372,9 +372,6 @@ class instance extends instance_skel {
 			let weekday = today.getDay()
 			let minutesElapsed = 60 * today.getHours() + today.getMinutes()
 
-			this.upcomingRecordings = []
-			this.currentRecordings = []
-
 			for (let s in data) {
 				let scheduledRec = data[s]
 				if (scheduledRec.is_enabled && scheduledRec.stopped_by_user != true && scheduledRec.source_unique_id) {
@@ -399,39 +396,25 @@ class instance extends instance_skel {
 					let recordingStartTime = scheduledRec.start_time
 					let recordingEndTime = scheduledRec.start_time + scheduledRec.duration
 					let recordingStartTimeHHMM = new Date(scheduledRec.start_time * 1000).toISOString().substr(14, 5)
-					let recordingEndTimeHHMM = new Date(recordingEndTime * 1000).toISOString().substr(14, 5)
-					let recordingName =
-						scheduledRec.name.length > 15 ? scheduledRec.name.substr(0, 13) + '...' : scheduledRec.name
-					let recordingInfo = recordingStartTimeHHMM + ' ' + recordingName
+					let recordingInfo = recordingStartTimeHHMM + ' ' + scheduledRec.name
 
 					if (recordingEndTime > minutesElapsed && recordingStartTime <= minutesElapsed) {
-						this.currentRecordings[source.unique_id] = scheduledRec
-						if (this.currentRecordings.includes(recordingInfo) === false) {
-							this.currentRecordings.push(recordingInfo)
-						}
-						currentSourceRecordings.push(recordingName + '\\n until \\n' + recordingEndTimeHHMM)
+						currentSourceRecordings.push(scheduledRec.name)
 					} else if (recordingStartTime > minutesElapsed) {
-						if (this.upcomingRecordings.includes(recordingInfo) === false) {
-							this.upcomingRecordings.push(recordingInfo)
-						}
 						if (upcomingSourceRecordings.includes(recordingInfo) === false) {
 							upcomingSourceRecordings.push(recordingInfo)
 						}
 					}
 				}
 				upcomingSourceRecordings.sort()
-				let upcoming = upcomingSourceRecordings.length ? upcomingSourceRecordings.join('\\n') : 'None'
-				this.setVariable(`upcoming_rec_${source.display_name}`, upcoming)
-				let current = currentSourceRecordings.length ? currentSourceRecordings.join('\\n') : 'None'
-				this.setVariable(`active_rec_${source.display_name}`, current)
+				if (currentSourceRecordings.length) {
+					this.setVariable(`scheduled_rec_${source.display_name}`, currentSourceRecordings.join('\\n'))
+				} else if (upcomingSourceRecordings.length) {
+					this.setVariable(`scheduled_rec_${source.display_name}`, upcomingSourceRecordings[0])
+				} else {
+					this.setVariable(`scheduled_rec_${source.display_name}`, 'None')
+				}
 			}
-
-			this.upcomingRecordings.sort()
-			let upcoming = this.upcomingRecordings.length ? this.upcomingRecordings.join('\\n') : 'None'
-			this.setVariable(`upcoming_scheduled_rec`, upcoming)
-			this.currentRecordings.sort()
-			let current = this.currentRecordings.length ? this.currentRecordings.join('\\n') : 'None'
-			this.setVariable(`active_scheduled_rec`, current)
 		}
 	}
 }
