@@ -371,6 +371,7 @@ class instance extends instance_skel {
 			let today = new Date()
 			let weekday = today.getDay()
 			let minutesElapsed = 60 * today.getHours() + today.getMinutes()
+			this.currentRecordings = []
 
 			for (let s in data) {
 				let scheduledRec = data[s]
@@ -396,10 +397,16 @@ class instance extends instance_skel {
 					let recordingStartTime = scheduledRec.start_time
 					let recordingEndTime = scheduledRec.start_time + scheduledRec.duration
 					let recordingStartTimeHHMM = new Date(scheduledRec.start_time * 1000).toISOString().substr(14, 5)
-					let recordingInfo = recordingStartTimeHHMM + ' ' + scheduledRec.name
+					let dateType = /(\d{4})([\/-])(\d{1,2})\2(\d{1,2})._/
+					let recName = scheduledRec.name
+					if (dateType.test(scheduledRec.name)) {
+						recName = scheduledRec.name.replace(dateType, '') //Removes date, if present, to help text space on button
+					}
+					let recordingInfo = '@ ' + recordingStartTimeHHMM + '\\n' + recName
 
 					if (recordingEndTime > minutesElapsed && recordingStartTime <= minutesElapsed) {
-						currentSourceRecordings.push(scheduledRec.name)
+						this.currentRecordings[source.unique_id] = scheduledRec
+						currentSourceRecordings.push(recName)
 					} else if (recordingStartTime > minutesElapsed) {
 						if (upcomingSourceRecordings.includes(recordingInfo) === false) {
 							upcomingSourceRecordings.push(recordingInfo)
