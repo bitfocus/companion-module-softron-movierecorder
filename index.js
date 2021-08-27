@@ -371,6 +371,7 @@ class instance extends instance_skel {
 			let today = new Date()
 			let weekday = today.getDay()
 			let minutesElapsed = 60 * today.getHours() + today.getMinutes()
+			this.currentRecordings = []
 
 			for (let s in data) {
 				let scheduledRec = data[s]
@@ -399,6 +400,7 @@ class instance extends instance_skel {
 					let recordingInfo = recordingStartTimeHHMM + ' ' + scheduledRec.name
 
 					if (recordingEndTime > minutesElapsed && recordingStartTime <= minutesElapsed) {
+						this.currentRecordings[source.unique_id] = scheduledRec
 						currentSourceRecordings.push(scheduledRec.name)
 					} else if (recordingStartTime > minutesElapsed) {
 						if (upcomingSourceRecordings.includes(recordingInfo) === false) {
