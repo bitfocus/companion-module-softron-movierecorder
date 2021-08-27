@@ -123,49 +123,15 @@ exports.getPresets = function () {
 		})
 		presets.push({
 			category: `Scheduled Recordings`,
-			label: `Upcoming Scheduled Recordings ${source.display_name}`,
+			label: `Scheduled Recordings ${source.display_name}`,
 			bank: {
 				style: 'text',
-				text: `${source.display_name} Upcoming:\\n$(MovieRecorder:upcoming_rec_${source.display_name})`,
-				size: '7',
-				color: this.rgb(255, 255, 255),
-				bgcolor: this.rgb(0, 0, 0),
-			},
-		})
-		presets.push({
-			category: `Scheduled Recordings`,
-			label: `Active Scheduled Recordings ${source.display_name}`,
-			bank: {
-				style: 'text',
-				text: `${source.display_name} Active:\\n$(MovieRecorder:active_rec_${source.display_name})`,
+				text: `${source.display_name} Recordings:\\n$(MovieRecorder:scheduled_rec_${source.display_name})`,
 				size: '7',
 				color: this.rgb(255, 255, 255),
 				bgcolor: this.rgb(0, 0, 0),
 			},
 		})
 	}
-	presets.push({
-		category: `Scheduled Recordings`,
-		label: `Active Scheduled Recordings`,
-		bank: {
-			style: 'text',
-			text: `Active Rec:\\n$(MovieRecorder:active_scheduled_rec)`,
-			size: '7',
-			color: this.rgb(255, 255, 255),
-			bgcolor: this.rgb(0, 0, 0),
-		},
-	})
-	presets.push({
-		category: `Scheduled Recordings`,
-		label: `Upcoming Scheduled Recordings`,
-		bank: {
-			style: 'text',
-			text: `Upcoming:\\n$(MovieRecorder:upcoming_scheduled_rec)`,
-			size: '7',
-			color: this.rgb(255, 255, 255),
-			bgcolor: this.rgb(0, 0, 0),
-		},
-	})
-
 	return presets
 }
