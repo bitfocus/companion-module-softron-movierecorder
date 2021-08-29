@@ -415,7 +415,7 @@ class instance extends instance_skel {
 				}
 				upcomingSourceRecordings.sort()
 				if (currentSourceRecordings.length) {
-					this.setVariable(`scheduled_rec_${source.display_name}`, currentSourceRecordings.join('\\n'))
+					this.setVariable(`scheduled_rec_${source.display_name}`, currentSourceRecordings[0])
 				} else if (upcomingSourceRecordings.length) {
 					this.setVariable(`scheduled_rec_${source.display_name}`, upcomingSourceRecordings[0])
 				} else {
