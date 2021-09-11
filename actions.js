@@ -28,7 +28,7 @@ module.exports = {
 			}
 		}
 
-		actions['record'] = {
+		;(actions['record'] = {
 			label: 'Record',
 			options: [
 				{
@@ -41,8 +41,8 @@ module.exports = {
 					required: true,
 				},
 			],
-		},
-		actions['pause'] = {
+		}),
+			(actions['pause'] = {
 				label: 'Pause',
 				options: [
 					{
@@ -55,7 +55,7 @@ module.exports = {
 						required: true,
 					},
 				],
-		}
+			})
 		actions['resume'] = {
 			label: 'Resume',
 			options: [
@@ -168,6 +168,20 @@ module.exports = {
 					label: 'Minutes to Extend',
 					id: 'time',
 					default: 5,
+					required: true,
+				},
+			],
+		}
+		actions['startUpcomingRecording'] = {
+			label: 'Start Upcoming Recording',
+			description: 'Starts the next scheduled recording for a source immediately instead of at the scheduled time',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Source',
+					id: 'source',
+					default: this.sourceListDefault,
+					choices: this.sourceList,
 					required: true,
 				},
 			],

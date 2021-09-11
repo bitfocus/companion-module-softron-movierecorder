@@ -177,6 +177,21 @@ class instance extends instance_skel {
 					type = 'GET'
 				}
 				break
+			case 'startUpcomingRecording':
+				if (opt.source !== null && this.nextRecording[opt.source]) {
+					let recording = this.nextRecording[opt.source]
+					let today = new Date()
+					let minutesElapsed = 60 * today.getHours() + today.getMinutes()
+					cmd = `scheduled_recordings/${recording.unique_id}`
+					type = 'PUT'
+					params = {
+						start_time: minutesElapsed,
+					}
+				} else {
+					cmd = `scheduled_recordings`
+					type = 'GET'
+				}
+				break
 		}
 		this.sendCommand(cmd, type, params) // Execute command
 	}
@@ -372,6 +387,7 @@ class instance extends instance_skel {
 			let weekday = today.getDay()
 			let minutesElapsed = 60 * today.getHours() + today.getMinutes()
 			this.currentRecordings = []
+			this.nextRecording = []
 
 			for (let s in data) {
 				let scheduledRec = data[s]
@@ -409,7 +425,8 @@ class instance extends instance_skel {
 						currentSourceRecordings.push(recName)
 					} else if (recordingStartTime > minutesElapsed) {
 						if (upcomingSourceRecordings.includes(recordingInfo) === false) {
-							upcomingSourceRecordings.push(recordingInfo)
+							let recordingDetails = { name: recordingInfo, details: scheduledRec }
+							upcomingSourceRecordings.push(recordingDetails)
 						}
 					}
 				}
@@ -417,7 +434,8 @@ class instance extends instance_skel {
 				if (currentSourceRecordings.length) {
 					this.setVariable(`scheduled_rec_${source.display_name}`, currentSourceRecordings[0])
 				} else if (upcomingSourceRecordings.length) {
-					this.setVariable(`scheduled_rec_${source.display_name}`, upcomingSourceRecordings[0])
+					this.nextRecording[source.unique_id] = upcomingSourceRecordings[0].details
+					this.setVariable(`scheduled_rec_${source.display_name}`, upcomingSourceRecordings[0].name)
 				} else {
 					this.setVariable(`scheduled_rec_${source.display_name}`, 'None')
 				}
