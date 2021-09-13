@@ -17,6 +17,7 @@ Allows you to control [MovieRecorder](https://softron.tv/products/movierecorder)
 - Set Recording Name
 - Set Recording Destinations
 - Extend Current Recording (Scheduled recordings only)
+- Start Upcoming Recording
 
 ### Available feedback
 
