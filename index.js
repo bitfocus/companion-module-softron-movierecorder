@@ -430,10 +430,11 @@ class instance extends instance_skel {
 						}
 					}
 				}
-				upcomingSourceRecordings.sort()
+
 				if (currentSourceRecordings.length) {
 					this.setVariable(`scheduled_rec_${source.display_name}`, currentSourceRecordings[0])
 				} else if (upcomingSourceRecordings.length) {
+					upcomingSourceRecordings.sort((a, b) => a.name.localeCompare(b.name))
 					this.nextRecording[source.unique_id] = upcomingSourceRecordings[0].details
 					this.setVariable(`scheduled_rec_${source.display_name}`, upcomingSourceRecordings[0].name)
 				} else {
