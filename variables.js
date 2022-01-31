@@ -61,7 +61,7 @@ exports.updateSourceVariables = function () {
 			let destination = source.enabled_destinations[s]
 			sourceDestinations.push(destination.destination_name)
 		}
-		destinations = sourceDestinations.join('\\n')
+		destinations = sourceDestinations.length ? sourceDestinations.join('\\n') : 'None'
 		this.setVariable(`rec_status_${source.display_name}`, status)
 		this.setVariable(`rec_time_elapsed_${source.display_name}`, elapsedTime)
 		this.setVariable(`rec_time_remaining_${source.display_name}`, remainingTime)

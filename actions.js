@@ -28,7 +28,7 @@ module.exports = {
 			}
 		}
 
-		;(actions['record'] = {
+		actions['record'] = {
 			label: 'Record',
 			options: [
 				{
@@ -41,21 +41,21 @@ module.exports = {
 					required: true,
 				},
 			],
-		}),
-			(actions['pause'] = {
-				label: 'Pause',
-				options: [
-					{
-						type: 'dropdown',
-						multiple: true,
-						label: 'Source(s)',
-						id: 'source',
-						default: [],
-						choices: this.sourceList,
-						required: true,
-					},
-				],
-			})
+		}
+		actions['pause'] = {
+			label: 'Pause',
+			options: [
+				{
+					type: 'dropdown',
+					multiple: true,
+					label: 'Source(s)',
+					id: 'source',
+					default: [],
+					choices: this.sourceList,
+					required: true,
+				},
+			],
+		}
 		actions['resume'] = {
 			label: 'Resume',
 			options: [
@@ -122,7 +122,7 @@ module.exports = {
 					required: true,
 				},
 				{
-					type: 'textinput',
+					type: 'textwithvariables',
 					label: 'Recording Name',
 					id: 'recordName',
 					default: 'New Recording',
