@@ -150,10 +150,14 @@ class instance extends instance_skel {
 				break
 			case 'setRecordingName':
 				if (opt.source !== null) {
+					let recordingName
+					this.parseVariables(opt.recordName, function (name) {
+						recordingName = name
+					})
 					cmd = `sources/${opt.source}/recording_name`
 					type = 'PUT'
 					params = {
-						recording_name: opt.recordName,
+						recording_name: recordingName,
 					}
 				}
 				break

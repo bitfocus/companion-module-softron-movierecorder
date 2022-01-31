@@ -122,7 +122,7 @@ module.exports = {
 					required: true,
 				},
 				{
-					type: 'textinput',
+					type: 'textwithvariables',
 					label: 'Recording Name',
 					id: 'recordName',
 					default: 'New Recording',
