@@ -157,7 +157,7 @@ class instance extends instance_skel {
 					cmd = `sources/${opt.source}/recording_name`
 					type = 'PUT'
 					params = {
-						recording_name: recordingName,
+						recording_name: recordingName.length ? recordingName : 'New Recording',
 					}
 				}
 				break
