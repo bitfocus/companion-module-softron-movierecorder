@@ -1,6 +1,6 @@
 {
 	"name": "softron-movierecorder",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"api_version": "1.0.0",
 	"keywords": [
 		"Recording",
@@ -17,7 +17,7 @@
 	"author": "Bryce Seifert",
 	"license": "MIT",
 	"dependencies": {
-		"node-fetch": "^2.6.1"
+		"node-fetch": "^2.6.7"
 	},
 	"homepage": "https://github.com/bitfocus/companion-module-softron-movierecorder#readme",
  	"bugs": {
