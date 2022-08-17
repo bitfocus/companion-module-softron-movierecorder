@@ -397,11 +397,11 @@ class instance extends instance_skel {
 				let scheduledRec = data[s]
 				if (scheduledRec.is_enabled && scheduledRec.stopped_by_user != true && scheduledRec.source_unique_id) {
 					if (scheduledRec.weekly_repeated && scheduledRec.recording_days.includes(weekday)) {
-						this.sources[scheduledRec.source_unique_id].scheduled.push(scheduledRec)
+						this.sources[scheduledRec.source_unique_id]?.scheduled.push(scheduledRec)
 					} else if (scheduledRec.date) {
 						let recordingDate = new Date(scheduledRec.date)
 						if (recordingDate.toLocaleDateString('en-US') == today.toLocaleDateString('en-US')) {
-							this.sources[scheduledRec.source_unique_id].scheduled.push(scheduledRec)
+							this.sources[scheduledRec.source_unique_id]?.scheduled.push(scheduledRec)
 						}
 					}
 				}
