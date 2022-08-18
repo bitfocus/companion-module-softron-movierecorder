@@ -122,14 +122,18 @@ exports.initFeedbacks = function () {
 				default: this.sourceListDefault,
 			},
 			{
-				type: 'textinput',
+				type: 'textwithvariables',
 				label: 'Recording Name',
 				id: 'recording_name',
 				default: 'New Recording',
 			},
 		],
 		callback: ({ options }) => {
-			if (this.sources[options.source]?.recording_name == options.recording_name) {
+			let recordingName
+			this.parseVariables(options.recording_name, function (name) {
+				recordingName = name
+			})
+			if (this.sources[options.source]?.recording_name == recordingName) {
 				return true
 			}
 		},
