@@ -23,7 +23,7 @@ class instance extends instance_skel {
 
 		this.sources = {}
 		this.sourceList = []
-		this.destinations = []
+		this.destinations = {}
 		this.destinationList = []
 		this.errorCount = 0
 	}
@@ -59,7 +59,7 @@ class instance extends instance_skel {
 		this.debug('destroy', this.id)
 		this.sources = {}
 		this.sourceList = []
-		this.destinations = []
+		this.destinations = {}
 		this.destinationList = []
 		this.stopPolling()
 	}
@@ -74,7 +74,7 @@ class instance extends instance_skel {
 		this.pollingInterval = 5000
 		this.awaitingConnection = true
 
-		this.password = this.config.password !== '' ? '?password=' + this.config.password : ''
+		this.password = this.config.password !== '' ? `?password=${this.config.password}` : ''
 		this.getSources()
 		this.actions()
 		this.initVariables()
@@ -227,7 +227,7 @@ class instance extends instance_skel {
 			resetConnection = true
 		}
 		if (this.config.password != config.password) {
-			this.password = config.password !== '' ? '?password=' + config.password : ''
+			this.password = config.password !== '' ? `?password=${this.config.password}` : ''
 			resetConnection = true
 		}
 		this.config = config
@@ -376,7 +376,13 @@ class instance extends instance_skel {
 			let originalDestinationCount = Object.keys(this.destinations).length
 			let newDestinationCount = Object.keys(data).length
 
-			this.destinations = data
+			this.destinations = {}
+
+			for (let s in data) {
+				let destination = data[s]
+				this.destinations[destination.unique_id] = destination
+			}
+
 			this.checkFeedbacks()
 			this.updateSourceVariables()
 
@@ -422,7 +428,7 @@ class instance extends instance_skel {
 					if (dateType.test(scheduledRec.name)) {
 						recName = scheduledRec.name.replace(dateType, '') //Removes date, if present, to help text space on button
 					}
-					let recordingInfo = '@ ' + recordingStartTimeHHMM + '\\n' + recName
+					let recordingInfo = `@ ${recordingStartTimeHHMM}\\n${recName}`
 
 					if (recordingEndTime > minutesElapsed && recordingStartTime <= minutesElapsed) {
 						this.currentRecordings[source.unique_id] = scheduledRec

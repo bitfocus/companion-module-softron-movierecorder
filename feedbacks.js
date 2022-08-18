@@ -134,5 +134,28 @@ exports.initFeedbacks = function () {
 			}
 		},
 	}
+	feedbacks.destinationWarning = {
+		type: 'boolean',
+		label: 'Destination Warning',
+		description: 'If a destination has an active warning, change the style of the button',
+		style: {
+			color: this.rgb(255, 255, 255),
+			bgcolor: this.rgb(200, 200, 0),
+		},
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Destination',
+				id: 'destination',
+				choices: this.destinationList,
+				default: this.destinationListDefault,
+			},
+		],
+		callback: ({ options }) => {
+			if (this.destinations[options.destination]?.warning_messages?.NotRelatedToSource?.length > 0) {
+				return true
+			}
+		},
+	}
 	return feedbacks
 }
