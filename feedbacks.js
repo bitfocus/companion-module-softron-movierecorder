@@ -122,14 +122,41 @@ exports.initFeedbacks = function () {
 				default: this.sourceListDefault,
 			},
 			{
-				type: 'textinput',
+				type: 'textwithvariables',
 				label: 'Recording Name',
 				id: 'recording_name',
 				default: 'New Recording',
 			},
 		],
 		callback: ({ options }) => {
-			if (this.sources[options.source]?.recording_name == options.recording_name) {
+			let recordingName
+			this.parseVariables(options.recording_name, function (name) {
+				recordingName = name
+			})
+			if (this.sources[options.source]?.recording_name == recordingName) {
+				return true
+			}
+		},
+	}
+	feedbacks.destinationWarning = {
+		type: 'boolean',
+		label: 'Destination Warning',
+		description: 'If a destination has an active warning, change the style of the button',
+		style: {
+			color: this.rgb(255, 255, 255),
+			bgcolor: this.rgb(200, 200, 0),
+		},
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Destination',
+				id: 'destination',
+				choices: this.destinationList,
+				default: this.destinationListDefault,
+			},
+		],
+		callback: ({ options }) => {
+			if (this.destinations[options.destination]?.warning_messages?.NotRelatedToSource?.length > 0) {
 				return true
 			}
 		},
