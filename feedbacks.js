@@ -1,13 +1,21 @@
-exports.initFeedbacks = function () {
+import { combineRgb } from '@companion-module/base'
+
+export function getFeedbacks() {
 	const feedbacks = {}
+
+	const ColorWhite = combineRgb(255, 255, 255)
+	const ColorBlack = combineRgb(0, 0, 0)
+	const ColorRed = combineRgb(200, 0, 0)
+	const ColorGreen = combineRgb(0, 200, 0)
+	const ColorOrange = combineRgb(255, 102, 0)
 
 	feedbacks.recording = {
 		type: 'boolean',
-		label: 'Recording Active',
+		name: 'Recording Active',
 		description: 'If a source is recording, change the style of the button',
-		style: {
-			color: this.rgb(255, 255, 255),
-			bgcolor: this.rgb(200, 0, 0),
+		defaultStyle: {
+			color: ColorWhite,
+			bgcolor: ColorRed,
 		},
 		options: [
 			{
@@ -26,11 +34,11 @@ exports.initFeedbacks = function () {
 	}
 	feedbacks.sourceDestinationEnabled = {
 		type: 'boolean',
-		label: 'Source Destination Enabled',
+		name: 'Source Destination Enabled',
 		description: 'If a source has the specified destination enabled, change the style of the button',
-		style: {
-			color: this.rgb(255, 255, 255),
-			bgcolor: this.rgb(0, 200, 0),
+		defaultStyle: {
+			color: ColorWhite,
+			bgcolor: ColorGreen,
 		},
 		options: [
 			{
@@ -61,11 +69,11 @@ exports.initFeedbacks = function () {
 	}
 	feedbacks.sourceLocked = {
 		type: 'boolean',
-		label: 'Source Locked',
+		name: 'Source Locked',
 		description: 'If a source is locked, change the style of the button',
-		style: {
-			color: this.rgb(255, 255, 255),
-			bgcolor: this.rgb(100, 100, 100),
+		defaultStyle: {
+			color: ColorWhite,
+			bgcolor: combineRgb(100, 100, 100),
 		},
 		options: [
 			{
@@ -84,11 +92,11 @@ exports.initFeedbacks = function () {
 	}
 	feedbacks.paused = {
 		type: 'boolean',
-		label: 'Recording Paused',
+		name: 'Recording Paused',
 		description: 'If a source recording is paused, change the style of the button',
-		style: {
-			color: this.rgb(255, 255, 255),
-			bgcolor: this.rgb(200, 200, 0),
+		defaultStyle: {
+			color: ColorWhite,
+			bgcolor: combineRgb(200, 200, 0),
 		},
 		options: [
 			{
@@ -107,11 +115,11 @@ exports.initFeedbacks = function () {
 	}
 	feedbacks.sourceRecordingName = {
 		type: 'boolean',
-		label: 'Source Recording Name',
+		name: 'Source Recording Name',
 		description: 'If a source has the specified recording name, change the style of the button',
-		style: {
-			color: this.rgb(255, 255, 255),
-			bgcolor: this.rgb(0, 200, 0),
+		defaultStyle: {
+			color: ColorWhite,
+			bgcolor: ColorGreen,
 		},
 		options: [
 			{
@@ -122,29 +130,25 @@ exports.initFeedbacks = function () {
 				default: this.sourceListDefault,
 			},
 			{
-				type: 'textwithvariables',
+				type: 'textinput',
 				label: 'Recording Name',
 				id: 'recording_name',
 				default: 'New Recording',
 			},
 		],
 		callback: ({ options }) => {
-			let recordingName
-			this.parseVariables(options.recording_name, function (name) {
-				recordingName = name
-			})
-			if (this.sources[options.source]?.recording_name == recordingName) {
+			if (this.sources[options.source]?.recording_name == options.recording_name) {
 				return true
 			}
 		},
 	}
 	feedbacks.destinationWarning = {
 		type: 'boolean',
-		label: 'Destination Warning',
+		name: 'Destination Warning',
 		description: 'If a destination has an active warning, change the style of the button',
-		style: {
-			color: this.rgb(255, 255, 255),
-			bgcolor: this.rgb(200, 200, 0),
+		defaultStyle: {
+			color: ColorWhite,
+			bgcolor: ColorOrange,
 		},
 		options: [
 			{
