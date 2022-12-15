@@ -1,41 +1,58 @@
-const instance_skel = require('../../instance_skel')
-const actions = require('./actions')
-const presets = require('./presets')
-const { updateVariableDefinitions, updateSourceVariables } = require('./variables')
-const { initFeedbacks } = require('./feedbacks')
+import { InstanceBase, Regex, runEntrypoint } from '@companion-module/base'
+import { getActions } from './actions.js'
+import { getPresets } from './presets.js'
+import { getVariables, updateSourceVariables } from './variables.js'
+import { getFeedbacks } from './feedbacks.js'
 
-const fetch = require('node-fetch')
+import fetch from 'node-fetch'
 
-let debug
-let log
+class MovieRecorderInstance extends InstanceBase {
+	constructor(internal) {
+		super(internal)
 
-class instance extends instance_skel {
-	constructor(system, id, config) {
-		super(system, id, config)
-
-		Object.assign(this, {
-			...actions,
-			...presets,
-		})
-
-		this.updateVariableDefinitions = updateVariableDefinitions
 		this.updateSourceVariables = updateSourceVariables
+	}
+
+	async init(config) {
+		this.config = config
 
 		this.sources = {}
 		this.sourceList = []
 		this.destinations = {}
 		this.destinationList = []
 		this.errorCount = 0
+
+		this.updateStatus('connecting')
+		this.errorCount = 0
+		this.timeOut = 0
+		this.pollingInterval = 5000
+		this.awaitingConnection = true
+
+		this.password = this.config?.password !== '' ? `?password=${this.config.password}` : ''
+		this.getSources()
+		this.initActions()
+		this.initVariables()
+		this.initFeedbacks()
+		this.initPresets()
+
+		this.setupPolling()
 	}
 
-	config_fields() {
+	async destroy() {
+		this.sources = {}
+		this.sourceList = []
+		this.destinations = {}
+		this.destinationList = []
+		this.stopPolling()
+	}
+
+	getConfigFields() {
 		return [
 			{
 				type: 'textinput',
 				id: 'host',
 				label: 'Target IP',
 				width: 6,
-				regex: this.REGEX_IP,
 			},
 			{
 				type: 'textinput',
@@ -43,7 +60,7 @@ class instance extends instance_skel {
 				label: 'Port',
 				default: 8080,
 				width: 2,
-				regex: this.REGEX_PORT,
+				regex: Regex.PORT,
 			},
 			{
 				type: 'textinput',
@@ -55,149 +72,45 @@ class instance extends instance_skel {
 		]
 	}
 
-	destroy() {
-		this.debug('destroy', this.id)
-		this.sources = {}
-		this.sourceList = []
-		this.destinations = {}
-		this.destinationList = []
-		this.stopPolling()
-	}
+	async configUpdated(config) {
+		let resetConnection = false
 
-	init() {
-		debug = this.debug
-		log = this.log
+		if (this.config.host != config.host) {
+			resetConnection = true
+		}
+		if (this.config.port != config.port) {
+			resetConnection = true
+		}
+		if (this.config.password != config.password) {
+			this.password = config.password !== '' ? `?password=${this.config.password}` : ''
+			resetConnection = true
+		}
+		this.config = config
 
-		this.status(this.STATUS_WARNING, 'Connecting')
-		this.errorCount = 0
-		this.timeOut = 0
-		this.pollingInterval = 5000
-		this.awaitingConnection = true
-
-		this.password = this.config.password !== '' ? `?password=${this.config.password}` : ''
-		this.getSources()
-		this.actions()
-		this.initVariables()
-		this.initFeedbacks()
-		this.initPresets()
-
-		this.setupPolling()
+		if (resetConnection === true) {
+			this.updateStatus('connecting')
+			this.init()
+		}
 	}
 
 	initVariables() {
-		this.updateVariableDefinitions()
+		const variables = getVariables.bind(this)()
+		this.setVariableDefinitions(variables)
 	}
 
 	initFeedbacks() {
-		const feedbacks = initFeedbacks.bind(this)()
+		const feedbacks = getFeedbacks.bind(this)()
 		this.setFeedbackDefinitions(feedbacks)
 	}
 
-	initPresets(updates) {
-		this.setPresetDefinitions(this.getPresets())
+	initPresets() {
+		const presets = getPresets.bind(this)()
+		this.setPresetDefinitions(presets)
 	}
 
-	actions(system) {
-		this.setActions(this.getActions())
-	}
-
-	action(action) {
-		let id = action.action
-		let opt = action.options
-		let cmd = ''
-		let type = ''
-		let params = ''
-		switch (id) {
-			case 'record':
-				if (opt.source !== null) {
-					cmd = `sources/record`
-					type = 'PUT'
-					params = opt.source
-				}
-				break
-			case 'pause':
-				if (opt.source !== null) {
-					cmd = `sources/pause`
-					type = 'PUT'
-					params = opt.source
-				}
-				break
-			case 'resume':
-				if (opt.source !== null) {
-					cmd = `sources/resume`
-					type = 'PUT'
-					params = opt.source
-				}
-				break
-			case 'stop':
-				if (opt.source !== null) {
-					cmd = `sources/stop`
-					type = 'PUT'
-					params = opt.source
-				}
-				break
-			case 'lock':
-				if (opt.source !== null) {
-					cmd = `sources/${opt.source}/lock`
-					type = 'GET'
-				}
-				break
-			case 'unlock':
-				if (opt.source !== null) {
-					cmd = `sources/${opt.source}/unlock`
-					type = 'GET'
-				}
-				break
-			case 'setRecordingName':
-				if (opt.source !== null) {
-					let recordingName
-					this.parseVariables(opt.recordName, function (name) {
-						recordingName = name
-					})
-					cmd = `sources/${opt.source}/recording_name`
-					type = 'PUT'
-					params = {
-						recording_name: recordingName.length ? recordingName : 'New Recording',
-					}
-				}
-				break
-			case 'setRecordingDestination':
-				if (opt.source !== null && opt.destination !== null) {
-					cmd = `sources/${opt.source}/destinations`
-					type = 'PUT'
-					params = opt.destination
-				}
-				break
-			case 'extendCurrentRecording':
-				if (opt.source !== null && opt.time !== null && this.currentRecordings[opt.source]) {
-					let recording = this.currentRecordings[opt.source]
-					cmd = `scheduled_recordings/${recording.unique_id}`
-					type = 'PUT'
-					params = {
-						duration: recording.duration + opt.time,
-					}
-				} else {
-					cmd = `scheduled_recordings`
-					type = 'GET'
-				}
-				break
-			case 'startUpcomingRecording':
-				if (opt.source !== null && this.nextRecording[opt.source]) {
-					let recording = this.nextRecording[opt.source]
-					let today = new Date()
-					let minutesElapsed = 60 * today.getHours() + today.getMinutes()
-					cmd = `scheduled_recordings/${recording.unique_id}`
-					type = 'PUT'
-					params = {
-						start_time: minutesElapsed,
-					}
-				} else {
-					cmd = `scheduled_recordings`
-					type = 'GET'
-				}
-				break
-		}
-		this.sendCommand(cmd, type, params) // Execute command
+	initActions() {
+		const actions = getActions.bind(this)()
+		this.setActionDefinitions(actions)
 	}
 
 	setupPolling() {
@@ -213,28 +126,6 @@ class instance extends instance_skel {
 		if (this.poll) {
 			clearInterval(this.poll)
 			this.poll = null
-		}
-	}
-
-	updateConfig(config) {
-		let resetConnection = false
-
-		this.debug('Updating config:', config)
-		if (this.config.host != config.host) {
-			resetConnection = true
-		}
-		if (this.config.port != config.port) {
-			resetConnection = true
-		}
-		if (this.config.password != config.password) {
-			this.password = config.password !== '' ? `?password=${this.config.password}` : ''
-			resetConnection = true
-		}
-		this.config = config
-		debug('Reset connection', resetConnection)
-		if (resetConnection === true) {
-			this.status(this.STATUS_WARNING, 'Connecting')
-			this.init()
 		}
 	}
 
@@ -277,11 +168,10 @@ class instance extends instance_skel {
 				}
 			})
 			.catch((err) => {
-				this.debug(err)
 				let errorText = String(err)
 				if (errorText.match('ECONNREFUSED')) {
 					if (this.errorCount < 1) {
-						this.status(this.STATUS_ERROR)
+						this.updateStatus('connection_failure')
 						this.log('error', 'Unable to connect to MovieRecorder')
 					}
 					if (this.errorCount > 60 && this.pollingInterval == 1000) {
@@ -291,7 +181,7 @@ class instance extends instance_skel {
 					this.errorCount++
 				} else if (errorText.match('ETIMEDOUT') || errorText.match('ENOTFOUND')) {
 					if (this.timeOut < 1) {
-						this.status(this.STATUS_ERROR)
+						this.updateStatus('connection_failure')
 						this.log('error', 'Unable to connect to MovieRecorder')
 						this.timeOut++
 					}
@@ -308,24 +198,23 @@ class instance extends instance_skel {
 						this.awaitingConnection = false
 						this.pollingInterval = 1000
 						this.setupPolling()
-						this.status(this.STATUS_OK)
+						this.updateStatus('ok')
 						this.log('info', 'Connected to MovieRecorder')
 					}
 					break
 				case 201: // Created
-					this.status(this.STATUS_OK)
+					this.updateStatus('ok')
 					this.log('debug', result.statusText)
 					break
 				case 202: // Accepted
-					this.status(this.STATUS_OK)
+					this.updateStatus('ok')
 					this.log('debug', result.statusText)
-					this.debug('Accepted: ', result.status)
 					break
 				case 400: // Bad Request
 					this.log('warn', result.statusText)
 					break
 				case 401: // Authentication Failed
-					this.status(this.STATUS_ERROR)
+					this.updateStatus('bad_config')
 					if (this.errorCount == 0) {
 						this.log('error', 'Authentication failed. Please check your password settings')
 					}
@@ -339,7 +228,7 @@ class instance extends instance_skel {
 					break
 				default:
 					// Unexpected response
-					this.status(this.STATUS_ERROR)
+					this.updateStatus('unknown_error')
 					this.log('error', result.statusText)
 					break
 			}
@@ -367,9 +256,9 @@ class instance extends instance_skel {
 			this.updateSourceVariables()
 
 			if (originalSourceCount != newSourceCount) {
-				this.actions()
+				this.initActions()
 				this.initFeedbacks()
-				this.updateVariableDefinitions()
+				this.initVariables()
 				this.initPresets()
 			}
 		} else if (cmd.match('/destinations') && data) {
@@ -387,9 +276,9 @@ class instance extends instance_skel {
 			this.updateSourceVariables()
 
 			if (originalDestinationCount != newDestinationCount) {
-				this.actions()
+				this.initActions()
 				this.initFeedbacks()
-				this.updateVariableDefinitions()
+				this.initVariables()
 				this.initPresets()
 			}
 		} else if (cmd.match('/scheduled_recordings') && data) {
@@ -442,17 +331,19 @@ class instance extends instance_skel {
 				}
 
 				if (currentSourceRecordings.length) {
-					this.setVariable(`scheduled_rec_${source.display_name}`, currentSourceRecordings[0])
+					this.setVariableValues({
+						[`scheduled_rec_${source.display_name}`]: currentSourceRecordings[0],
+					})
 				} else if (upcomingSourceRecordings.length) {
 					upcomingSourceRecordings.sort((a, b) => a.name.localeCompare(b.name))
 					this.nextRecording[source.unique_id] = upcomingSourceRecordings[0].details
-					this.setVariable(`scheduled_rec_${source.display_name}`, upcomingSourceRecordings[0].name)
+					this.setVariableValues({ [`scheduled_rec_${source.display_name}`]: upcomingSourceRecordings[0].name })
 				} else {
-					this.setVariable(`scheduled_rec_${source.display_name}`, 'None')
+					this.setVariableValues({ [`scheduled_rec_${source.display_name}`]: 'None' })
 				}
 			}
 		}
 	}
 }
 
-exports = module.exports = instance
+runEntrypoint(MovieRecorderInstance, [])

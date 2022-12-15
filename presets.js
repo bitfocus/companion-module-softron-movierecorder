@@ -1,137 +1,188 @@
-exports.getPresets = function () {
-	let presets = []
+import { combineRgb } from '@companion-module/base'
+
+export function getPresets() {
+	const ColorWhite = combineRgb(255, 255, 255)
+	const ColorBlack = combineRgb(0, 0, 0)
+	const ColorRed = combineRgb(200, 0, 0)
+	const ColorGreen = combineRgb(0, 200, 0)
+	const ColorOrange = combineRgb(255, 102, 0)
+
+	let presets = {}
+
 	for (let s in this.sources) {
 		let source = this.sources[s]
-		presets.push({
+		presets[`${source.display_name}_record`] = {
+			type: 'button',
 			category: `Recording Controls`,
-			label: `Record ${source.display_name}`,
-			bank: {
-				style: 'text',
+			name: `Record ${source.display_name}`,
+			options: {},
+			style: {
 				text: `Record\\n${source.display_name}`,
 				size: 'auto',
-				color: this.rgb(255, 255, 255),
-				bgcolor: this.rgb(0, 0, 0),
+				color: ColorWhite,
+				bgcolor: ColorBlack,
 			},
-			actions: [
+			steps: [
 				{
-					action: 'record',
-					options: {
-						source: [source.unique_id],
-					},
+					down: [
+						{
+							actionId: 'record',
+							options: {
+								source: [source.unique_id],
+							},
+						},
+					],
+					up: [],
 				},
 			],
 			feedbacks: [
 				{
-					type: 'recording',
+					feedbackId: 'recording',
 					options: {
 						source: source.unique_id,
 					},
 					style: {
-						bgcolor: this.rgb(200, 0, 0),
-						color: this.rgb(255, 255, 255),
+						bgcolor: ColorRed,
+						color: ColorWhite,
 					},
 				},
 			],
-		})
-		presets.push({
+		}
+		presets[`${source.display_name}_stop`] = {
+			type: 'button',
 			category: `Recording Controls`,
-			label: `Stop ${source.display_name}`,
-			bank: {
-				style: 'text',
+			name: `Stop ${source.display_name}`,
+			options: {},
+			style: {
 				text: `Stop\\n${source.display_name}`,
 				size: 'auto',
-				color: this.rgb(255, 255, 255),
-				bgcolor: this.rgb(0, 0, 0),
+				color: ColorWhite,
+				bgcolor: ColorBlack,
 			},
-			actions: [
+			steps: [
 				{
-					action: 'stop',
-					options: {
-						source: [source.unique_id],
-					},
+					down: [
+						{
+							actionId: 'stop',
+							options: {
+								source: [source.unique_id],
+							},
+						},
+					],
+					up: [],
 				},
 			],
 			feedbacks: [
 				{
-					type: 'recording',
+					feedbackId: 'recording',
 					options: {
 						source: source.unique_id,
 					},
 					style: {
-						bgcolor: this.rgb(200, 0, 0),
-						color: this.rgb(255, 255, 255),
+						bgcolor: ColorRed,
+						color: ColorWhite,
 					},
 				},
 			],
-		})
-		presets.push({
+		}
+		presets[`${source.display_name}_recording_status`] = {
+			type: 'button',
 			category: `Source Info`,
-			label: `${source.display_name} Recording Status / Time Elapsed`,
-			bank: {
-				style: 'text',
+			name: `${source.display_name} Recording Status / Time Elapsed`,
+			options: {},
+			style: {
 				text: `${source.display_name}\\n$(MovieRecorder:rec_status_${source.display_name})\\n$(MovieRecorder:rec_time_elapsed_${source.display_name})`,
 				size: 'auto',
-				color: this.rgb(255, 255, 255),
-				bgcolor: this.rgb(0, 0, 0),
+				color: ColorWhite,
+				bgcolor: ColorBlack,
 			},
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
 			feedbacks: [
 				{
-					type: 'recording',
+					feedbackId: 'recording',
 					options: {
 						source: source.unique_id,
 					},
 					style: {
-						bgcolor: this.rgb(200, 0, 0),
-						color: this.rgb(255, 255, 255),
+						bgcolor: ColorRed,
+						color: ColorWhite,
 					},
 				},
 			],
-		})
-		presets.push({
+		}
+		presets[`${source.display_name}_video_format`] = {
+			type: 'button',
 			category: `Source Info`,
-			label: `${source.display_name} Video Format`,
-			bank: {
-				style: 'text',
+			name: `${source.display_name} Video Format`,
+			options: {},
+			style: {
 				text: `${source.display_name}\\n$(MovieRecorder:video_format_${source.display_name})`,
 				size: 'auto',
-				color: this.rgb(255, 255, 255),
-				bgcolor: this.rgb(0, 0, 0),
+				color: ColorWhite,
+				bgcolor: ColorBlack,
 			},
-		})
-		presets.push({
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
+		presets[`${source.display_name}_recording_destinations`] = {
+			type: 'button',
 			category: `Source Info`,
-			label: `${source.display_name} Recording Destinations`,
-			bank: {
-				style: 'text',
+			name: `${source.display_name} Recording Destinations`,
+			options: {},
+			style: {
 				text: `${source.display_name} Dest:\\n$(MovieRecorder:rec_destinations_${source.display_name})`,
 				size: 'auto',
-				color: this.rgb(255, 255, 255),
-				bgcolor: this.rgb(0, 0, 0),
+				color: ColorWhite,
+				bgcolor: ColorBlack,
 			},
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
 			feedbacks: [
 				{
-					type: 'recording',
+					feedbackId: 'recording',
 					options: {
 						source: source.unique_id,
 					},
 					style: {
-						bgcolor: this.rgb(200, 0, 0),
-						color: this.rgb(255, 255, 255),
+						bgcolor: ColorRed,
+						color: ColorWhite,
 					},
 				},
 			],
-		})
-		presets.push({
+		}
+		presets[`${source.display_name}_scheduled_recordings`] = {
+			type: 'button',
 			category: `Scheduled Recordings`,
-			label: `Scheduled Recordings ${source.display_name}`,
-			bank: {
-				style: 'text',
+			name: `Scheduled Recordings ${source.display_name}`,
+			options: {},
+			style: {
 				text: `${source.display_name} Recordings:\\n$(MovieRecorder:scheduled_rec_${source.display_name})`,
 				size: '7',
-				color: this.rgb(255, 255, 255),
-				bgcolor: this.rgb(0, 0, 0),
+				color: ColorWhite,
+				bgcolor: ColorBlack,
 			},
-		})
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
 	}
 	return presets
 }
