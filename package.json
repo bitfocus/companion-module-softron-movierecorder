@@ -4,11 +4,11 @@
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"format": "prettier -w ."
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@companion-module/base": "~1.0.2",
+		"@companion-module/base": "~1.1.1",
 		"node-fetch": "^3.3.0"
 	},
 	"repository": {
@@ -16,6 +16,7 @@
 		"url": "git+https://github.com/bitfocus/companion-module-softron-movierecorder.git"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^0.5.0"
-	}
+		"@companion-module/tools": "^0.5.2"
+	},
+	"prettier": "@companion-module/tools/.prettierrc.json"
 }

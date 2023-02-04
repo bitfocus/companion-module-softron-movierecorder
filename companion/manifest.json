@@ -21,11 +21,6 @@
 		"entrypoint": "../index.js"
 	},
 	"manufacturer": "Softron",
-	"products": [
-		"MovieRecorder"
-	],
-	"keywords": [
-		"Recording",
-		"Video"
-	]
+	"products": ["MovieRecorder"],
+	"keywords": ["Recording", "Video"]
 }
