@@ -14,7 +14,9 @@ class MovieRecorderInstance extends InstanceBase {
 	}
 
 	async init(config) {
-		this.config = config
+		if (config) {
+			this.config = config
+		}
 
 		this.sources = {}
 		this.sourceList = []
@@ -52,6 +54,7 @@ class MovieRecorderInstance extends InstanceBase {
 				type: 'textinput',
 				id: 'host',
 				label: 'Target IP',
+				default: '127.0.0.1',
 				width: 6,
 			},
 			{
