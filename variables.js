@@ -2,33 +2,34 @@ export function getVariables() {
 	const variables = []
 	for (let s in this.sources) {
 		let source = this.sources[s]
+		let validSourceName = source.display_name?.replace(/[\W]/gi, '_')
 		variables.push({
 			name: `${source.display_name} Recording Status`,
-			variableId: `rec_status_${source.display_name}`,
+			variableId: `rec_status_${validSourceName}`,
 		})
 		variables.push({
 			name: `${source.display_name} Recording Time Elapsed`,
-			variableId: `rec_time_elapsed_${source.display_name}`,
+			variableId: `rec_time_elapsed_${validSourceName}`,
 		})
 		variables.push({
 			name: `${source.display_name} Recording Time Remaining`,
-			variableId: `rec_time_remaining_${source.display_name}`,
+			variableId: `rec_time_remaining_${validSourceName}`,
 		})
 		variables.push({
 			name: `${source.display_name} Recording Name`,
-			variableId: `rec_name_${source.display_name}`,
+			variableId: `rec_name_${validSourceName}`,
 		})
 		variables.push({
 			name: `${source.display_name} Recording Destinations`,
-			variableId: `rec_destinations_${source.display_name}`,
+			variableId: `rec_destinations_${validSourceName}`,
 		})
 		variables.push({
 			name: `${source.display_name} Video Format`,
-			variableId: `video_format_${source.display_name}`,
+			variableId: `video_format_${validSourceName}`,
 		})
 		variables.push({
 			name: `${source.display_name} Scheduled Recordings`,
-			variableId: `scheduled_rec_${source.display_name}`,
+			variableId: `scheduled_rec_${validSourceName}`,
 		})
 	}
 
@@ -54,6 +55,7 @@ function getRemainingTime(endDate) {
 export function updateSourceVariables() {
 	for (let s in this.sources) {
 		let source = this.sources[s]
+		let validSourceName = source.display_name?.replace(/[\W]/gi, '_')
 		let status = ''
 		let elapsedTime = '00:00:00'
 		let remainingTime = '00:00:00'
@@ -79,12 +81,12 @@ export function updateSourceVariables() {
 		destinations = sourceDestinations.length ? sourceDestinations.join('\\n') : 'None'
 
 		this.setVariableValues({
-			[`rec_status_${source.display_name}`]: status,
-			[`rec_time_elapsed_${source.display_name}`]: elapsedTime,
-			[`rec_time_remaining_${source.display_name}`]: remainingTime,
-			[`rec_name_${source.display_name}`]: source.recording_name,
-			[`rec_destinations_${source.display_name}`]: destinations,
-			[`video_format_${source.display_name}`]: source.video_format,
+			[`rec_status_${validSourceName}`]: status,
+			[`rec_time_elapsed_${validSourceName}`]: elapsedTime,
+			[`rec_time_remaining_${validSourceName}`]: remainingTime,
+			[`rec_name_${validSourceName}`]: source.recording_name,
+			[`rec_destinations_${validSourceName}`]: destinations,
+			[`video_format_${validSourceName}`]: source.video_format,
 		})
 	}
 }

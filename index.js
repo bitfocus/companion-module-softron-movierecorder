@@ -304,6 +304,7 @@ class MovieRecorderInstance extends InstanceBase {
 
 			for (let s in this.sources) {
 				let source = this.sources[s]
+				let validSourceName = source.display_name?.replace(/[\W]/gi, '_')
 				let upcomingSourceRecordings = []
 				let currentSourceRecordings = []
 
@@ -332,14 +333,14 @@ class MovieRecorderInstance extends InstanceBase {
 
 				if (currentSourceRecordings.length) {
 					this.setVariableValues({
-						[`scheduled_rec_${source.display_name}`]: currentSourceRecordings[0],
+						[`scheduled_rec_${validSourceName}`]: currentSourceRecordings[0],
 					})
 				} else if (upcomingSourceRecordings.length) {
 					upcomingSourceRecordings.sort((a, b) => a.name.localeCompare(b.name))
 					this.nextRecording[source.unique_id] = upcomingSourceRecordings[0].details
-					this.setVariableValues({ [`scheduled_rec_${source.display_name}`]: upcomingSourceRecordings[0].name })
+					this.setVariableValues({ [`scheduled_rec_${validSourceName}`]: upcomingSourceRecordings[0].name })
 				} else {
-					this.setVariableValues({ [`scheduled_rec_${source.display_name}`]: 'None' })
+					this.setVariableValues({ [`scheduled_rec_${validSourceName}`]: 'None' })
 				}
 			}
 		}
