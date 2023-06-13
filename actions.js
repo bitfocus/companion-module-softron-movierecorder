@@ -8,7 +8,11 @@ export function getActions() {
 			this.sourceList.push({ id: source.unique_id, label: source.display_name })
 		}
 		if (this.sourceList[0]) {
-			this.sourceList.sort((a, b) => (a.id < b.id ? -1 : 1))
+			this.sourceList.sort((a, b) =>
+				a.label.localeCompare(b.label, undefined, {
+					numeric: true,
+				})
+			)
 			this.sourceListDefault = this.sourceList[0].id
 		} else {
 			this.sourceListDefault = ''
@@ -20,7 +24,11 @@ export function getActions() {
 			this.destinationList.push({ id: destination.unique_id, label: destination.name })
 		}
 		if (this.destinationList[0]) {
-			this.destinationList.sort((a, b) => (a.id < b.id ? -1 : 1))
+			this.destinationList.sort((a, b) =>
+				a.label.localeCompare(b.label, undefined, {
+					numeric: true,
+				})
+			)
 			this.destinationListDefault = this.destinationList[0].id
 		} else {
 			this.destinationListDefault = ''

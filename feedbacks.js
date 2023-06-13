@@ -27,9 +27,7 @@ export function getFeedbacks() {
 			},
 		],
 		callback: ({ options }) => {
-			if (this.sources[options.source]?.is_recording) {
-				return true
-			}
+			return this.sources[options.source]?.is_recording
 		},
 	}
 	feedbacks.sourceDestinationEnabled = {
@@ -64,6 +62,8 @@ export function getFeedbacks() {
 						return true
 					}
 				}
+			} else {
+				return false
 			}
 		},
 	}
@@ -85,9 +85,7 @@ export function getFeedbacks() {
 			},
 		],
 		callback: ({ options }) => {
-			if (this.sources[options.source]?.is_locked) {
-				return true
-			}
+			return this.sources[options.source]?.is_locked
 		},
 	}
 	feedbacks.paused = {
@@ -108,9 +106,7 @@ export function getFeedbacks() {
 			},
 		],
 		callback: ({ options }) => {
-			if (this.sources[options.source]?.is_paused) {
-				return true
-			}
+			return this.sources[options.source]?.is_paused
 		},
 	}
 	feedbacks.sourceRecordingName = {
@@ -137,9 +133,7 @@ export function getFeedbacks() {
 			},
 		],
 		callback: ({ options }) => {
-			if (this.sources[options.source]?.recording_name == options.recording_name) {
-				return true
-			}
+			return this.sources[options.source]?.recording_name == options.recording_name
 		},
 	}
 	feedbacks.destinationWarning = {
@@ -160,9 +154,7 @@ export function getFeedbacks() {
 			},
 		],
 		callback: ({ options }) => {
-			if (this.destinations[options.destination]?.warning_messages?.NotRelatedToSource?.length > 0) {
-				return true
-			}
+			return this.destinations[options.destination]?.warning_messages?.NotRelatedToSource?.length > 0
 		},
 	}
 	return feedbacks
