@@ -28,7 +28,7 @@ class MovieRecorderInstance extends InstanceBase {
 		this.pollingInterval = 5000
 		this.awaitingConnection = true
 
-		this.password = this.config?.password !== '' ? `?password=${this.config.password}` : ''
+		this.password = this.config?.password !== '' ? `?password=${this.config?.password}` : ''
 		this.getSources()
 		this.initActions()
 		this.initVariables()
