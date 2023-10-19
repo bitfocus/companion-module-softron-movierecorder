@@ -11,6 +11,8 @@ export function getPresets() {
 
 	for (let s in this.sources) {
 		let source = this.sources[s]
+		let validSourceName = source.display_name?.replace(/[\W]/gi, '_')
+
 		presets[`${source.display_name}_record`] = {
 			type: 'button',
 			category: `Recording Controls`,
@@ -91,7 +93,7 @@ export function getPresets() {
 			name: `${source.display_name} Recording Status / Time Elapsed`,
 			options: {},
 			style: {
-				text: `${source.display_name}\\n$(MovieRecorder:rec_status_${source.display_name})\\n$(MovieRecorder:rec_time_elapsed_${source.display_name})`,
+				text: `${source.display_name}\\n$(MovieRecorder:rec_status_${validSourceName})\\n$(MovieRecorder:rec_time_elapsed_${validSourceName})`,
 				size: 'auto',
 				color: ColorWhite,
 				bgcolor: ColorBlack,
@@ -121,7 +123,7 @@ export function getPresets() {
 			name: `${source.display_name} Video Format`,
 			options: {},
 			style: {
-				text: `${source.display_name}\\n$(MovieRecorder:video_format_${source.display_name})`,
+				text: `${source.display_name}\\n$(MovieRecorder:video_format_${validSourceName})`,
 				size: 'auto',
 				color: ColorWhite,
 				bgcolor: ColorBlack,
@@ -140,7 +142,7 @@ export function getPresets() {
 			name: `${source.display_name} Recording Destinations`,
 			options: {},
 			style: {
-				text: `${source.display_name} Dest:\\n$(MovieRecorder:rec_destinations_${source.display_name})`,
+				text: `${source.display_name} Dest:\\n$(MovieRecorder:rec_destinations_${validSourceName})`,
 				size: 'auto',
 				color: ColorWhite,
 				bgcolor: ColorBlack,
@@ -170,7 +172,7 @@ export function getPresets() {
 			name: `Scheduled Recordings ${source.display_name}`,
 			options: {},
 			style: {
-				text: `${source.display_name} Recordings:\\n$(MovieRecorder:scheduled_rec_${source.display_name})`,
+				text: `${source.display_name} Recordings:\\n$(MovieRecorder:scheduled_rec_${validSourceName})`,
 				size: '7',
 				color: ColorWhite,
 				bgcolor: ColorBlack,
