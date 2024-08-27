@@ -3,7 +3,7 @@
 	"name": "softron-movierecorder",
 	"shortname": "MovieRecorder",
 	"description": "Module to control MovieRecorder",
-	"version": "2.0.3",
+	"version": "2.0.4",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-softron-movierecorder.git",
 	"bugs": "https://github.com/bitfocus/companion-module-softron-movierecorder/issues",
