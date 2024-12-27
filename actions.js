@@ -11,7 +11,7 @@ export function getActions() {
 			this.sourceList.sort((a, b) =>
 				a.label.localeCompare(b.label, undefined, {
 					numeric: true,
-				})
+				}),
 			)
 			this.sourceListDefault = this.sourceList[0].id
 		} else {
@@ -27,7 +27,7 @@ export function getActions() {
 			this.destinationList.sort((a, b) =>
 				a.label.localeCompare(b.label, undefined, {
 					numeric: true,
-				})
+				}),
 			)
 			this.destinationListDefault = this.destinationList[0].id
 		} else {
