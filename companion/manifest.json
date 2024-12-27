@@ -3,7 +3,7 @@
 	"name": "softron-movierecorder",
 	"shortname": "MovieRecorder",
 	"description": "Module to control MovieRecorder",
-	"version": "2.0.4",
+	"version": "0.0.0",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-softron-movierecorder.git",
 	"bugs": "https://github.com/bitfocus/companion-module-softron-movierecorder/issues",
@@ -15,7 +15,7 @@
 	],
 	"legacyIds": [],
 	"runtime": {
-		"type": "node18",
+		"type": "node22",
 		"api": "nodejs-ipc",
 		"apiVersion": "0.0.0",
 		"entrypoint": "../index.js"
