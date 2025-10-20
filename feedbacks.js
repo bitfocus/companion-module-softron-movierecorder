@@ -156,5 +156,37 @@ export function getFeedbacks() {
 			return this.destinations[options.destination]?.warning_messages?.NotRelatedToSource?.length > 0
 		},
 	}
+	feedbacks.sourceThumbnail = {
+		type: 'advanced',
+		name: 'Source Thumbnail',
+		description: 'Display the source thumbnail on the button',
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Source',
+				id: 'source',
+				choices: this.sourceList,
+				default: this.sourceListDefault,
+			},
+			{
+				type: 'number',
+				label: 'Refresh Interval (ms)',
+				id: 'interval',
+				tooltip: 'How often to refresh the thumbnail in milliseconds',
+				default: 500,
+				min: 100,
+				max: 10000,
+			},
+		],
+		subscribe: (feedback) => {
+			this.subscribeThumbnailFeedback(feedback)
+		},
+		unsubscribe: (feedback) => {
+			this.unsubscribeThumbnailFeedback(feedback)
+		},
+		callback: async (feedback) => {
+			return this.getThumbnailImage(feedback.options.source)
+		},
+	}
 	return feedbacks
 }
