@@ -11,6 +11,8 @@ class MovieRecorderInstance extends InstanceBase {
 		super(internal)
 
 		this.updateSourceVariables = updateSourceVariables
+		this.thumbnailFeedbacks = new Map()
+		this.thumbnailTimers = new Map() 
 	}
 
 	async init(config) {
@@ -46,6 +48,11 @@ class MovieRecorderInstance extends InstanceBase {
 		this.destinations = {}
 		this.destinationList = []
 		this.stopPolling()
+		for (const timer of this.thumbnailTimers.values()) {
+			clearInterval(timer)
+		}
+		this.thumbnailTimers.clear()
+		this.thumbnailFeedbacks.clear()
 	}
 
 	getConfigFields() {
@@ -347,6 +354,75 @@ class MovieRecorderInstance extends InstanceBase {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Subscribe to thumbnail feedback
+	 * @param {Object} feedback - The feedback object
+	 */
+	subscribeThumbnailFeedback(feedback) {
+		const feedbackId = feedback.id
+		const interval = feedback.options.interval || 500
+
+		this.log('debug', `Subscribing to thumbnail feedback ${feedbackId} with interval ${interval}ms`)
+
+		// Store the feedback
+		this.thumbnailFeedbacks.set(feedbackId, feedback)
+
+		// Set up periodic refresh
+		const timer = setInterval(() => {
+			this.checkFeedbacks('sourceThumbnail')
+		}, interval)
+
+		this.thumbnailTimers.set(feedbackId, timer)
+
+		// Trigger immediate update
+		this.checkFeedbacks('sourceThumbnail')
+	}
+
+	/**
+	 * Unsubscribe from thumbnail feedback
+	 * @param {Object} feedback - The feedback object
+	 */
+	unsubscribeThumbnailFeedback(feedback) {
+		const feedbackId = feedback.id
+
+		this.log('debug', `Unsubscribing from thumbnail feedback ${feedbackId}`)
+
+		// Clear the timer
+		const timer = this.thumbnailTimers.get(feedbackId)
+		if (timer) {
+			clearInterval(timer)
+			this.thumbnailTimers.delete(feedbackId)
+		}
+
+		// Remove the feedback
+		this.thumbnailFeedbacks.delete(feedbackId)
+	}
+
+	/**
+	 * Get the thumbnail image from the API
+	 * @param {string} sourceId - The source unique ID
+	 * @returns {Object} Image object for feedback
+	 */
+	async getThumbnailImage(sourceId) {
+		try {
+			const url = `http://${this.config.host}:${this.config.port}/sources/${sourceId}/thumbnail${this.password}`
+
+			const response = await fetch(url)
+
+			if (response.status === 200) {
+				const buffer = await response.buffer()
+				// Return the image in base64 format that Companion expects
+				return {
+					png64: buffer.toString('base64'),
+				}
+			}
+		} catch (error) {
+			this.log('warn', `Failed to fetch thumbnail: ${error.message}`)
+		}
+
+		return undefined
 	}
 }
 
