@@ -19,7 +19,7 @@
 		"url": "git+https://github.com/bitfocus/companion-module-softron-movierecorder.git"
 	},
 	"devDependencies": {
-		"@companion-module/tools": "^2.1.1",
+		"@companion-module/tools": "^2.6.1",
 		"eslint": "^9.17.0",
 		"prettier": "^3.4.2"
 	},
