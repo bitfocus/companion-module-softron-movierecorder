@@ -169,6 +169,28 @@ export function getActions() {
 			}
 		},
 	}
+	actions['split'] = {
+		name: 'Split Recording',
+		description: 'Continues the recording in a new file. Only works if the destination settings allow splitting.',
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Source',
+				id: 'source',
+				default: this.sourceListDefault,
+				choices: this.sourceList,
+				required: true,
+			},
+		],
+		callback: (action) => {
+			if (action.options.source !== null) {
+				cmd = `sources/${action.options.source}/manual_split`
+				type = 'GET'
+
+				this.sendCommand(cmd, type)
+			}
+		},
+	}
 	actions['setRecordingName'] = {
 		name: 'Set Recording Name',
 		options: [
