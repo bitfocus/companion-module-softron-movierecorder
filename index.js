@@ -5,6 +5,7 @@ import { getVariables, updateSourceVariables } from './variables.js'
 import { getFeedbacks } from './feedbacks.js'
 
 import fetch from 'node-fetch'
+import https from 'https'
 
 class MovieRecorderInstance extends InstanceBase {
 	constructor(internal) {
@@ -73,6 +74,13 @@ class MovieRecorderInstance extends InstanceBase {
 				regex: Regex.PORT,
 			},
 			{
+				type: 'checkbox',
+				id: 'useHttps',
+				label: 'Use HTTPS',
+				default: false,
+				width: 4,
+			},
+			{
 				type: 'textinput',
 				id: 'password',
 				label: 'Password (optional)',
@@ -89,6 +97,9 @@ class MovieRecorderInstance extends InstanceBase {
 			resetConnection = true
 		}
 		if (this.config.port != config.port) {
+			resetConnection = true
+		}
+		if (this.config.useHttps != config.useHttps) {
 			resetConnection = true
 		}
 		if (this.config.password != config.password) {
@@ -145,18 +156,25 @@ class MovieRecorderInstance extends InstanceBase {
 	}
 
 	sendCommand(cmd, type, params) {
-		let url = `http://${this.config.host}:${this.config.port}/${cmd}${this.password}`
+		const protocol = this.config.useHttps ? 'https' : 'http'
+		let url = `${protocol}://${this.config.host}:${this.config.port}/${cmd}${this.password}`
+
+		// Allow self-signed certificates when using HTTPS
+		const agent = this.config.useHttps ? new https.Agent({ rejectUnauthorized: false }) : undefined
+
 		let options = {}
 		if (type == 'PUT' || type == 'POST') {
 			options = {
 				method: type,
 				body: params != undefined ? JSON.stringify(params) : null,
 				headers: { 'Content-Type': 'application/json' },
+				agent,
 			}
 		} else {
 			options = {
 				method: type,
 				headers: { 'Content-Type': 'application/json' },
+				agent,
 			}
 		}
 
@@ -407,12 +425,17 @@ class MovieRecorderInstance extends InstanceBase {
 	 */
 	async getThumbnailImage(sourceId) {
 		try {
-			const url = `http://${this.config.host}:${this.config.port}/sources/${sourceId}/thumbnail${this.password}`
+			const protocol = this.config.useHttps ? 'https' : 'http'
+			const url = `${protocol}://${this.config.host}:${this.config.port}/sources/${sourceId}/thumbnail${this.password}`
 
-			const response = await fetch(url)
+			// Allow self-signed certificates when using HTTPS
+			const agent = this.config.useHttps ? new https.Agent({ rejectUnauthorized: false }) : undefined
+
+			const response = await fetch(url, { agent })
 
 			if (response.status === 200) {
-				const buffer = await response.buffer()
+				const arrayBuffer = await response.arrayBuffer()
+				const buffer = Buffer.from(arrayBuffer)
 				// Return the image in base64 format that Companion expects
 				return {
 					png64: buffer.toString('base64'),
