@@ -328,5 +328,72 @@ export function getActions() {
 			}
 		},
 	}
+	actions['restoreConfiguration'] = {
+		name: 'Restore Configuration',
+		description: 'Restores a saved configuration with selected options',
+		options: [
+			{
+				type: 'dropdown',
+				label: 'Configuration',
+				id: 'configuration',
+				default: this.configurationListDefault || '',
+				choices: this.configurationList || [],
+				required: true,
+			},
+			{
+				type: 'checkbox',
+				label: 'Restore VTR Batch List',
+				id: 'restore_vtr_bach_list',
+				default: true,
+			},
+			{
+				type: 'checkbox',
+				label: 'Restore Sources',
+				id: 'restore_sources',
+				default: true,
+			},
+			{
+				type: 'checkbox',
+				label: 'Restore AV Presets',
+				id: 'restore_av_presets',
+				default: true,
+			},
+			{
+				type: 'checkbox',
+				label: 'Restore Destinations',
+				id: 'restore_destinations',
+				default: true,
+			},
+			{
+				type: 'checkbox',
+				label: 'Restore Schedule',
+				id: 'restore_schedule',
+				default: true,
+			},
+			{
+				type: 'checkbox',
+				label: 'Restore Layout',
+				id: 'restore_layout',
+				default: true,
+			},
+		],
+		callback: (action) => {
+			if (action.options.configuration) {
+				cmd = 'restore_configuration'
+				type = 'PUT'
+				params = {
+					name: action.options.configuration,
+					restore_vtr_bach_list: action.options.restore_vtr_bach_list,
+					restore_sources: action.options.restore_sources,
+					restore_av_presets: action.options.restore_av_presets,
+					restore_destinations: action.options.restore_destinations,
+					restore_schedule: action.options.restore_schedule,
+					restore_layout: action.options.restore_layout,
+				}
+
+				this.sendCommand(cmd, type, params)
+			}
+		},
+	}
 	return actions
 }
