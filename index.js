@@ -3,6 +3,7 @@ import { getActions } from './actions.js'
 import { getPresets } from './presets.js'
 import { getVariables, updateSourceVariables } from './variables.js'
 import { getFeedbacks } from './feedbacks.js'
+import { upgradeScripts } from './upgrades.js'
 
 import fetch from 'node-fetch'
 import https from 'https'
@@ -484,4 +485,4 @@ class MovieRecorderInstance extends InstanceBase {
 	}
 }
 
-runEntrypoint(MovieRecorderInstance, [])
+runEntrypoint(MovieRecorderInstance, upgradeScripts)
