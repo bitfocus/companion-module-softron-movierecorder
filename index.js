@@ -25,6 +25,8 @@ class MovieRecorderInstance extends InstanceBase {
 		this.sourceList = []
 		this.destinations = {}
 		this.destinationList = []
+		this.configurations = []
+		this.configurationList = []
 		this.errorCount = 0
 
 		this.updateStatus('connecting')
@@ -35,6 +37,7 @@ class MovieRecorderInstance extends InstanceBase {
 
 		this.password = this.config?.password !== '' ? `?password=${this.config?.password}` : ''
 		this.getSources()
+		this.getConfigurations()
 		this.initActions()
 		this.initVariables()
 		this.initFeedbacks()
@@ -48,6 +51,8 @@ class MovieRecorderInstance extends InstanceBase {
 		this.sourceList = []
 		this.destinations = {}
 		this.destinationList = []
+		this.configurations = []
+		this.configurationList = []
 		this.stopPolling()
 		for (const timer of this.thumbnailTimers.values()) {
 			clearInterval(timer)
@@ -153,6 +158,11 @@ class MovieRecorderInstance extends InstanceBase {
 	getSources() {
 		this.sources = {}
 		this.sendCommand('sources', 'GET')
+	}
+
+	getConfigurations() {
+		this.configurations = []
+		this.sendCommand('configurations', 'GET')
 	}
 
 	sendCommand(cmd, type, params) {
@@ -370,6 +380,31 @@ class MovieRecorderInstance extends InstanceBase {
 				} else {
 					this.setVariableValues({ [`scheduled_rec_${validSourceName}`]: 'None' })
 				}
+			}
+		} else if (cmd.match('/configurations') && data) {
+			let originalConfigCount = this.configurations.length
+			let newConfigCount = data.length
+
+			this.configurations = data
+			this.configurationList = []
+
+			for (let config of data) {
+				this.configurationList.push({ id: config, label: config })
+			}
+
+			if (this.configurationList.length > 0) {
+				this.configurationList.sort((a, b) =>
+					a.label.localeCompare(b.label, undefined, {
+						numeric: true,
+					}),
+				)
+				this.configurationListDefault = this.configurationList[0].id
+			} else {
+				this.configurationListDefault = ''
+			}
+
+			if (originalConfigCount != newConfigCount) {
+				this.initActions()
 			}
 		}
 	}
