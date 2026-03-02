@@ -3,6 +3,7 @@ import { getActions } from './actions.js'
 import { getPresets } from './presets.js'
 import { getVariables, updateSourceVariables } from './variables.js'
 import { getFeedbacks } from './feedbacks.js'
+import { upgradeScripts } from './upgrades.js'
 
 import fetch from 'node-fetch'
 import https from 'https'
@@ -13,7 +14,7 @@ class MovieRecorderInstance extends InstanceBase {
 
 		this.updateSourceVariables = updateSourceVariables
 		this.thumbnailFeedbacks = new Map()
-		this.thumbnailTimers = new Map() 
+		this.thumbnailTimers = new Map()
 	}
 
 	async init(config) {
@@ -351,7 +352,7 @@ class MovieRecorderInstance extends InstanceBase {
 					let recordingStartTime = scheduledRec.start_time
 					let recordingEndTime = scheduledRec.start_time + scheduledRec.duration
 					let recordingStartTimeHHMM = new Date(scheduledRec.start_time * 1000).toISOString().substr(14, 5)
-					let dateType = /(\d{4})([\/-])(\d{1,2})\2(\d{1,2})._/
+					let dateType = /(\d{4})([/-])(\d{1,2})\2(\d{1,2})._/
 					let recName = scheduledRec.name
 					if (dateType.test(scheduledRec.name)) {
 						recName = scheduledRec.name.replace(dateType, '') //Removes date, if present, to help text space on button
@@ -484,4 +485,4 @@ class MovieRecorderInstance extends InstanceBase {
 	}
 }
 
-runEntrypoint(MovieRecorderInstance, [])
+runEntrypoint(MovieRecorderInstance, upgradeScripts)
