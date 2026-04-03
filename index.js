@@ -462,7 +462,7 @@ class MovieRecorderInstance extends InstanceBase {
 	async getThumbnailImage(sourceId) {
 		try {
 			const protocol = this.config.useHttps ? 'https' : 'http'
-			const url = `${protocol}://${this.config.host}:${this.config.port}/sources/${sourceId}/thumbnail${this.password}`
+			const url = `${protocol}://${this.config.host}:${this.config.port}/sources/${encodeURIComponent(sourceId)}/thumbnail${this.password}`
 
 			// Allow self-signed certificates when using HTTPS
 			const agent = this.config.useHttps ? new https.Agent({ rejectUnauthorized: false }) : undefined

@@ -141,7 +141,7 @@ export function getActions() {
 		],
 		callback: (action) => {
 			if (action.options.source !== null) {
-				cmd = `sources/${action.options.source}/lock`
+				cmd = `sources/${encodeURIComponent(action.options.source)}/lock`
 				type = 'GET'
 
 				this.sendCommand(cmd, type)
@@ -162,7 +162,7 @@ export function getActions() {
 		],
 		callback: (action) => {
 			if (action.options.source !== null) {
-				cmd = `sources/${action.options.source}/unlock`
+				cmd = `sources/${encodeURIComponent(action.options.source)}/unlock`
 				type = 'GET'
 
 				this.sendCommand(cmd, type)
@@ -184,7 +184,7 @@ export function getActions() {
 		],
 		callback: (action) => {
 			if (action.options.source !== null) {
-				cmd = `sources/${action.options.source}/manual_split`
+				cmd = `sources/${encodeURIComponent(action.options.source)}/manual_split`
 				type = 'GET'
 
 				this.sendCommand(cmd, type)
@@ -214,7 +214,7 @@ export function getActions() {
 		callback: async (action) => {
 			if (action.options.source !== null) {
 				const recordingName = await this.parseVariablesInString(action.options.recordName)
-				cmd = `sources/${action.options.source}/recording_name`
+				cmd = `sources/${encodeURIComponent(action.options.source)}/recording_name`
 				type = 'PUT'
 				params = {
 					recording_name: recordingName.length ? recordingName : 'New Recording',
@@ -246,7 +246,7 @@ export function getActions() {
 		],
 		callback: (action) => {
 			if (action.options.source !== null && action.options.destination !== null) {
-				cmd = `sources/${action.options.source}/destinations`
+				cmd = `sources/${encodeURIComponent(action.options.source)}/destinations`
 				type = 'PUT'
 				params = action.options.destination
 
