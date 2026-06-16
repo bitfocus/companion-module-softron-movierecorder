@@ -5,17 +5,22 @@ export function getPresets() {
 	const ColorBlack = combineRgb(0, 0, 0)
 	const ColorRed = combineRgb(200, 0, 0)
 
-	let presets = {}
+	const presets = {}
+
+	// As of API 2.0 presets are categorised via a separate "structure" of sections,
+	// rather than a `category` property on each preset. Collect the ids per section here.
+	const recordingControls = []
+	const sourceInfo = []
+	const scheduledRecordings = []
 
 	for (let s in this.sources) {
 		let source = this.sources[s]
 		let validSourceName = source.display_name?.replace(/[\W]/gi, '_')
 
-		presets[`${source.display_name}_record`] = {
-			type: 'button',
-			category: `Recording Controls`,
+		const recordId = `${source.display_name}_record`
+		presets[recordId] = {
+			type: 'simple',
 			name: `Record ${source.display_name}`,
-			options: {},
 			style: {
 				text: `Record\\n${source.display_name}`,
 				size: 'auto',
@@ -48,11 +53,12 @@ export function getPresets() {
 				},
 			],
 		}
-		presets[`${source.display_name}_stop`] = {
-			type: 'button',
-			category: `Recording Controls`,
+		recordingControls.push(recordId)
+
+		const stopId = `${source.display_name}_stop`
+		presets[stopId] = {
+			type: 'simple',
 			name: `Stop ${source.display_name}`,
-			options: {},
 			style: {
 				text: `Stop\\n${source.display_name}`,
 				size: 'auto',
@@ -85,11 +91,12 @@ export function getPresets() {
 				},
 			],
 		}
-		presets[`${source.display_name}_recording_status`] = {
-			type: 'button',
-			category: `Source Info`,
+		recordingControls.push(stopId)
+
+		const recordingStatusId = `${source.display_name}_recording_status`
+		presets[recordingStatusId] = {
+			type: 'simple',
 			name: `${source.display_name} Recording Status / Time Elapsed`,
-			options: {},
 			style: {
 				text: `${source.display_name}\\n$(MovieRecorder:rec_status_${validSourceName})\\n$(MovieRecorder:rec_time_elapsed_${validSourceName})`,
 				size: 'auto',
@@ -115,11 +122,12 @@ export function getPresets() {
 				},
 			],
 		}
-		presets[`${source.display_name}_video_format`] = {
-			type: 'button',
-			category: `Source Info`,
+		sourceInfo.push(recordingStatusId)
+
+		const videoFormatId = `${source.display_name}_video_format`
+		presets[videoFormatId] = {
+			type: 'simple',
 			name: `${source.display_name} Video Format`,
-			options: {},
 			style: {
 				text: `${source.display_name}\\n$(MovieRecorder:video_format_${validSourceName})`,
 				size: 'auto',
@@ -134,11 +142,12 @@ export function getPresets() {
 			],
 			feedbacks: [],
 		}
-		presets[`${source.display_name}_recording_destinations`] = {
-			type: 'button',
-			category: `Source Info`,
+		sourceInfo.push(videoFormatId)
+
+		const recordingDestinationsId = `${source.display_name}_recording_destinations`
+		presets[recordingDestinationsId] = {
+			type: 'simple',
 			name: `${source.display_name} Recording Destinations`,
-			options: {},
 			style: {
 				text: `${source.display_name} Dest:\\n$(MovieRecorder:rec_destinations_${validSourceName})`,
 				size: 'auto',
@@ -164,11 +173,12 @@ export function getPresets() {
 				},
 			],
 		}
-		presets[`${source.display_name}_scheduled_recordings`] = {
-			type: 'button',
-			category: `Scheduled Recordings`,
+		sourceInfo.push(recordingDestinationsId)
+
+		const scheduledRecordingsId = `${source.display_name}_scheduled_recordings`
+		presets[scheduledRecordingsId] = {
+			type: 'simple',
 			name: `Scheduled Recordings ${source.display_name}`,
-			options: {},
 			style: {
 				text: `${source.display_name} Recordings:\\n$(MovieRecorder:scheduled_rec_${validSourceName})`,
 				size: '7',
@@ -183,6 +193,26 @@ export function getPresets() {
 			],
 			feedbacks: [],
 		}
+		scheduledRecordings.push(scheduledRecordingsId)
 	}
-	return presets
+
+	const structure = [
+		{
+			id: 'recording_controls',
+			name: 'Recording Controls',
+			definitions: recordingControls,
+		},
+		{
+			id: 'source_info',
+			name: 'Source Info',
+			definitions: sourceInfo,
+		},
+		{
+			id: 'scheduled_recordings',
+			name: 'Scheduled Recordings',
+			definitions: scheduledRecordings,
+		},
+	]
+
+	return { structure, presets }
 }

@@ -48,7 +48,6 @@ export function getActions() {
 				id: 'source',
 				default: [],
 				choices: this.sourceList,
-				required: true,
 			},
 		],
 		callback: (action) => {
@@ -70,7 +69,6 @@ export function getActions() {
 				id: 'source',
 				default: [],
 				choices: this.sourceList,
-				required: true,
 			},
 		],
 		callback: (action) => {
@@ -92,7 +90,6 @@ export function getActions() {
 				id: 'source',
 				default: [],
 				choices: this.sourceList,
-				required: true,
 			},
 		],
 		callback: (action) => {
@@ -114,7 +111,6 @@ export function getActions() {
 				id: 'source',
 				default: [],
 				choices: this.sourceList,
-				required: true,
 			},
 		],
 		callback: (action) => {
@@ -136,7 +132,6 @@ export function getActions() {
 				id: 'source',
 				default: this.sourceListDefault,
 				choices: this.sourceList,
-				required: true,
 			},
 		],
 		callback: (action) => {
@@ -157,7 +152,6 @@ export function getActions() {
 				id: 'source',
 				default: this.sourceListDefault,
 				choices: this.sourceList,
-				required: true,
 			},
 		],
 		callback: (action) => {
@@ -179,7 +173,6 @@ export function getActions() {
 				id: 'source',
 				default: this.sourceListDefault,
 				choices: this.sourceList,
-				required: true,
 			},
 		],
 		callback: (action) => {
@@ -200,7 +193,6 @@ export function getActions() {
 				id: 'source',
 				default: this.sourceListDefault,
 				choices: this.sourceList,
-				required: true,
 			},
 			{
 				type: 'textinput',
@@ -208,12 +200,11 @@ export function getActions() {
 				label: 'Recording Name',
 				id: 'recordName',
 				default: 'New Recording',
-				required: true,
 			},
 		],
-		callback: async (action) => {
+		callback: (action) => {
 			if (action.options.source !== null) {
-				const recordingName = await this.parseVariablesInString(action.options.recordName)
+				const recordingName = String(action.options.recordName ?? '')
 				cmd = `sources/${encodeURIComponent(action.options.source)}/recording_name`
 				type = 'PUT'
 				params = {
@@ -233,7 +224,6 @@ export function getActions() {
 				id: 'source',
 				default: this.sourceListDefault,
 				choices: this.sourceList,
-				required: true,
 			},
 			{
 				type: 'multidropdown',
@@ -241,7 +231,6 @@ export function getActions() {
 				id: 'destination',
 				default: this.destinationListDefault,
 				choices: this.destinationList,
-				required: true,
 			},
 		],
 		callback: (action) => {
@@ -263,14 +252,12 @@ export function getActions() {
 				id: 'source',
 				default: this.sourceListDefault,
 				choices: this.sourceList,
-				required: true,
 			},
 			{
 				type: 'number',
 				label: 'Minutes to Extend',
 				id: 'time',
 				default: 5,
-				required: true,
 			},
 		],
 		callback: (action) => {
@@ -305,7 +292,6 @@ export function getActions() {
 				id: 'source',
 				default: this.sourceListDefault,
 				choices: this.sourceList,
-				required: true,
 			},
 		],
 		callback: (action) => {
@@ -338,7 +324,6 @@ export function getActions() {
 				id: 'configuration',
 				default: this.configurationListDefault || '',
 				choices: this.configurationList || [],
-				required: true,
 			},
 			{
 				type: 'checkbox',

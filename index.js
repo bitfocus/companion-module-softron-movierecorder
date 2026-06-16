@@ -1,4 +1,4 @@
-import { InstanceBase, Regex, runEntrypoint } from '@companion-module/base'
+import { InstanceBase, Regex } from '@companion-module/base'
 import { getActions } from './actions.js'
 import { getPresets } from './presets.js'
 import { getVariables, updateSourceVariables } from './variables.js'
@@ -8,7 +8,9 @@ import { upgradeScripts } from './upgrades.js'
 import fetch from 'node-fetch'
 import https from 'https'
 
-class MovieRecorderInstance extends InstanceBase {
+export const UpgradeScripts = upgradeScripts
+
+export default class MovieRecorderInstance extends InstanceBase {
 	constructor(internal) {
 		super(internal)
 
@@ -55,7 +57,7 @@ class MovieRecorderInstance extends InstanceBase {
 		this.configurations = []
 		this.configurationList = []
 		this.stopPolling()
-		for (const timer of this.thumbnailTimers.values()) {
+		for (const { timer } of this.thumbnailTimers.values()) {
 			clearInterval(timer)
 		}
 		this.thumbnailTimers.clear()
@@ -131,8 +133,8 @@ class MovieRecorderInstance extends InstanceBase {
 	}
 
 	initPresets() {
-		const presets = getPresets.bind(this)()
-		this.setPresetDefinitions(presets)
+		const { structure, presets } = getPresets.bind(this)()
+		this.setPresetDefinitions(structure, presets)
 	}
 
 	initActions() {
@@ -291,7 +293,7 @@ class MovieRecorderInstance extends InstanceBase {
 				this.sources[source.unique_id] = source
 				this.sources[source.unique_id].scheduled = []
 			}
-			this.checkFeedbacks()
+			this.checkAllFeedbacks()
 			this.updateSourceVariables()
 
 			if (originalSourceCount != newSourceCount) {
@@ -311,7 +313,7 @@ class MovieRecorderInstance extends InstanceBase {
 				this.destinations[destination.unique_id] = destination
 			}
 
-			this.checkFeedbacks()
+			this.checkAllFeedbacks()
 			this.updateSourceVariables()
 
 			if (originalDestinationCount != newDestinationCount) {
@@ -411,27 +413,35 @@ class MovieRecorderInstance extends InstanceBase {
 	}
 
 	/**
-	 * Subscribe to thumbnail feedback
+	 * Ensure a refresh timer is running for a thumbnail feedback.
+	 * Called from the feedback callback (subscribe callbacks were removed in API 2.0),
+	 * so it must be idempotent across repeated executions.
 	 * @param {Object} feedback - The feedback object
 	 */
-	subscribeThumbnailFeedback(feedback) {
+	ensureThumbnailTimer(feedback) {
 		const feedbackId = feedback.id
 		const interval = feedback.options.interval || 500
 
-		this.log('debug', `Subscribing to thumbnail feedback ${feedbackId} with interval ${interval}ms`)
-
-		// Store the feedback
+		// Always keep the latest feedback object
 		this.thumbnailFeedbacks.set(feedbackId, feedback)
+
+		// If a timer is already running with the same interval, leave it be
+		const existing = this.thumbnailTimers.get(feedbackId)
+		if (existing) {
+			if (existing.interval === interval) {
+				return
+			}
+			clearInterval(existing.timer)
+		}
+
+		this.log('debug', `Refreshing thumbnail feedback ${feedbackId} every ${interval}ms`)
 
 		// Set up periodic refresh
 		const timer = setInterval(() => {
-			this.checkFeedbacks('sourceThumbnail')
+			this.checkFeedbacksById(feedbackId)
 		}, interval)
 
-		this.thumbnailTimers.set(feedbackId, timer)
-
-		// Trigger immediate update
-		this.checkFeedbacks('sourceThumbnail')
+		this.thumbnailTimers.set(feedbackId, { timer, interval })
 	}
 
 	/**
@@ -444,9 +454,9 @@ class MovieRecorderInstance extends InstanceBase {
 		this.log('debug', `Unsubscribing from thumbnail feedback ${feedbackId}`)
 
 		// Clear the timer
-		const timer = this.thumbnailTimers.get(feedbackId)
-		if (timer) {
-			clearInterval(timer)
+		const existing = this.thumbnailTimers.get(feedbackId)
+		if (existing) {
+			clearInterval(existing.timer)
 			this.thumbnailTimers.delete(feedbackId)
 		}
 
@@ -484,5 +494,3 @@ class MovieRecorderInstance extends InstanceBase {
 		return undefined
 	}
 }
-
-runEntrypoint(MovieRecorderInstance, upgradeScripts)

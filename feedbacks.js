@@ -178,13 +178,11 @@ export function getFeedbacks() {
 				max: 10000,
 			},
 		],
-		subscribe: (feedback) => {
-			this.subscribeThumbnailFeedback(feedback)
-		},
 		unsubscribe: (feedback) => {
 			this.unsubscribeThumbnailFeedback(feedback)
 		},
 		callback: async (feedback) => {
+			this.ensureThumbnailTimer(feedback)
 			return this.getThumbnailImage(feedback.options.source)
 		},
 	}

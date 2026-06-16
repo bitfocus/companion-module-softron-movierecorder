@@ -1,36 +1,29 @@
 export function getVariables() {
-	const variables = []
+	const variables = {}
 	for (let s in this.sources) {
 		let source = this.sources[s]
 		let validSourceName = source.display_name?.replace(/[\W]/gi, '_')
-		variables.push({
+		variables[`rec_status_${validSourceName}`] = {
 			name: `${source.display_name} Recording Status`,
-			variableId: `rec_status_${validSourceName}`,
-		})
-		variables.push({
+		}
+		variables[`rec_time_elapsed_${validSourceName}`] = {
 			name: `${source.display_name} Recording Time Elapsed`,
-			variableId: `rec_time_elapsed_${validSourceName}`,
-		})
-		variables.push({
+		}
+		variables[`rec_time_remaining_${validSourceName}`] = {
 			name: `${source.display_name} Recording Time Remaining`,
-			variableId: `rec_time_remaining_${validSourceName}`,
-		})
-		variables.push({
+		}
+		variables[`rec_name_${validSourceName}`] = {
 			name: `${source.display_name} Recording Name`,
-			variableId: `rec_name_${validSourceName}`,
-		})
-		variables.push({
+		}
+		variables[`rec_destinations_${validSourceName}`] = {
 			name: `${source.display_name} Recording Destinations`,
-			variableId: `rec_destinations_${validSourceName}`,
-		})
-		variables.push({
+		}
+		variables[`video_format_${validSourceName}`] = {
 			name: `${source.display_name} Video Format`,
-			variableId: `video_format_${validSourceName}`,
-		})
-		variables.push({
+		}
+		variables[`scheduled_rec_${validSourceName}`] = {
 			name: `${source.display_name} Scheduled Recordings`,
-			variableId: `scheduled_rec_${validSourceName}`,
-		})
+		}
 	}
 
 	return variables
