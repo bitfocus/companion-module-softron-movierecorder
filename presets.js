@@ -12,6 +12,7 @@ export function getPresets() {
 	const recordingControls = []
 	const sourceInfo = []
 	const scheduledRecordings = []
+	const sourceThumbnails = []
 
 	for (let s in this.sources) {
 		let source = this.sources[s]
@@ -194,6 +195,39 @@ export function getPresets() {
 			feedbacks: [],
 		}
 		scheduledRecordings.push(scheduledRecordingsId)
+
+		// Thumbnail preset. The Source Thumbnail feedback is an advanced feedback that
+		// returns a png64 image. When a button is created from this preset, Companion 5.0
+		// converts the legacy style into elements, which always includes an image element,
+		// and wires the advanced feedback to it automatically - so the live thumbnail shows
+		// without the user having to add an image element by hand.
+		const thumbnailId = `${source.display_name}_thumbnail`
+		presets[thumbnailId] = {
+			type: 'simple',
+			name: `${source.display_name} Thumbnail`,
+			style: {
+				text: '',
+				size: 'auto',
+				color: ColorWhite,
+				bgcolor: ColorBlack,
+			},
+			steps: [
+				{
+					down: [],
+					up: [],
+				},
+			],
+			feedbacks: [
+				{
+					feedbackId: 'sourceThumbnail',
+					options: {
+						source: source.unique_id,
+						interval: 500,
+					},
+				},
+			],
+		}
+		sourceThumbnails.push(thumbnailId)
 	}
 
 	const structure = [
@@ -211,6 +245,11 @@ export function getPresets() {
 			id: 'scheduled_recordings',
 			name: 'Scheduled Recordings',
 			definitions: scheduledRecordings,
+		},
+		{
+			id: 'source_thumbnails',
+			name: 'Source Thumbnails',
+			definitions: sourceThumbnails,
 		},
 	]
 
