@@ -1,4 +1,4 @@
-import { InstanceBase, Regex, runEntrypoint } from '@companion-module/base'
+import { InstanceBase, Regex } from '@companion-module/base'
 import { getActions } from './actions.js'
 import { getPresets } from './presets.js'
 import { getVariables, updateSourceVariables } from './variables.js'
@@ -8,13 +8,18 @@ import { upgradeScripts } from './upgrades.js'
 import fetch from 'node-fetch'
 import https from 'https'
 
-class MovieRecorderInstance extends InstanceBase {
+export const UpgradeScripts = upgradeScripts
+
+export default class MovieRecorderInstance extends InstanceBase {
 	constructor(internal) {
 		super(internal)
 
 		this.updateSourceVariables = updateSourceVariables
-		this.thumbnailFeedbacks = new Map()
-		this.thumbnailTimers = new Map()
+		// Thumbnails are polled per source and shared across every feedback that uses them.
+		// source -> { timer, interval, refs: Map<feedbackId, interval>, image, fetching }
+		this.thumbnailSources = new Map()
+		// feedbackId -> the source it is currently registered under (to handle source changes)
+		this.thumbnailFeedbackSource = new Map()
 	}
 
 	async init(config) {
@@ -55,11 +60,11 @@ class MovieRecorderInstance extends InstanceBase {
 		this.configurations = []
 		this.configurationList = []
 		this.stopPolling()
-		for (const timer of this.thumbnailTimers.values()) {
-			clearInterval(timer)
+		for (const entry of this.thumbnailSources.values()) {
+			if (entry.timer) clearInterval(entry.timer)
 		}
-		this.thumbnailTimers.clear()
-		this.thumbnailFeedbacks.clear()
+		this.thumbnailSources.clear()
+		this.thumbnailFeedbackSource.clear()
 	}
 
 	getConfigFields() {
@@ -131,8 +136,8 @@ class MovieRecorderInstance extends InstanceBase {
 	}
 
 	initPresets() {
-		const presets = getPresets.bind(this)()
-		this.setPresetDefinitions(presets)
+		const { structure, presets } = getPresets.bind(this)()
+		this.setPresetDefinitions(structure, presets)
 	}
 
 	initActions() {
@@ -291,7 +296,7 @@ class MovieRecorderInstance extends InstanceBase {
 				this.sources[source.unique_id] = source
 				this.sources[source.unique_id].scheduled = []
 			}
-			this.checkFeedbacks()
+			this.checkAllFeedbacks()
 			this.updateSourceVariables()
 
 			if (originalSourceCount != newSourceCount) {
@@ -311,7 +316,7 @@ class MovieRecorderInstance extends InstanceBase {
 				this.destinations[destination.unique_id] = destination
 			}
 
-			this.checkFeedbacks()
+			this.checkAllFeedbacks()
 			this.updateSourceVariables()
 
 			if (originalDestinationCount != newDestinationCount) {
@@ -411,47 +416,119 @@ class MovieRecorderInstance extends InstanceBase {
 	}
 
 	/**
-	 * Subscribe to thumbnail feedback
+	 * Register a thumbnail feedback's interest in a source and make sure a single shared
+	 * polling loop is running for that source. Called from the feedback callback (subscribe
+	 * callbacks were removed in API 2.0), so it must be idempotent.
+	 *
+	 * Thumbnails are fetched per source, not per feedback: any number of feedbacks pointing
+	 * at the same source share one timer, one fetch per interval, and one cached image.
+	 * Sources with no active feedback are never polled.
 	 * @param {Object} feedback - The feedback object
 	 */
-	subscribeThumbnailFeedback(feedback) {
+	requestThumbnail(feedback) {
 		const feedbackId = feedback.id
+		const source = feedback.options.source
 		const interval = feedback.options.interval || 500
 
-		this.log('debug', `Subscribing to thumbnail feedback ${feedbackId} with interval ${interval}ms`)
+		if (!source) return
 
-		// Store the feedback
-		this.thumbnailFeedbacks.set(feedbackId, feedback)
+		// If this feedback was previously pointing at a different source, release that one
+		const previousSource = this.thumbnailFeedbackSource.get(feedbackId)
+		if (previousSource !== undefined && previousSource !== source) {
+			this.releaseThumbnailRef(previousSource, feedbackId)
+		}
+		this.thumbnailFeedbackSource.set(feedbackId, source)
 
-		// Set up periodic refresh
-		const timer = setInterval(() => {
-			this.checkFeedbacks('sourceThumbnail')
-		}, interval)
+		let entry = this.thumbnailSources.get(source)
+		if (!entry) {
+			entry = { timer: null, interval, refs: new Map(), image: undefined, fetching: false }
+			this.thumbnailSources.set(source, entry)
+		}
+		entry.refs.set(feedbackId, interval)
 
-		this.thumbnailTimers.set(feedbackId, timer)
-
-		// Trigger immediate update
-		this.checkFeedbacks('sourceThumbnail')
+		this.updateThumbnailTimer(source)
 	}
 
 	/**
-	 * Unsubscribe from thumbnail feedback
+	 * (Re)configure a source's polling loop to run at the fastest interval any of its
+	 * feedbacks requested. Fetches immediately when the loop first starts.
+	 * @param {string} source - The source unique ID
+	 */
+	updateThumbnailTimer(source) {
+		const entry = this.thumbnailSources.get(source)
+		if (!entry || entry.refs.size === 0) return
+
+		const minInterval = Math.min(...entry.refs.values())
+		if (entry.timer && entry.interval === minInterval) return
+
+		const isNew = !entry.timer
+		if (entry.timer) clearInterval(entry.timer)
+
+		entry.interval = minInterval
+		entry.timer = setInterval(() => {
+			this.fetchThumbnailForSource(source)
+		}, minInterval)
+
+		if (isNew) {
+			this.log('debug', `Started thumbnail polling for source ${source} every ${minInterval}ms`)
+			// Fetch straight away so the image appears promptly instead of after one interval
+			this.fetchThumbnailForSource(source)
+		}
+	}
+
+	/**
+	 * Fetch a source's thumbnail once, cache it, and re-render every feedback that uses
+	 * that source. In-flight fetches for the same source are de-duplicated.
+	 * @param {string} source - The source unique ID
+	 */
+	async fetchThumbnailForSource(source) {
+		const entry = this.thumbnailSources.get(source)
+		if (!entry || entry.fetching) return
+
+		entry.fetching = true
+		try {
+			const image = await this.getThumbnailImage(source)
+			const current = this.thumbnailSources.get(source)
+			if (!current) return // released while the fetch was in flight
+
+			current.image = image
+			if (current.refs.size > 0) this.checkFeedbacksById(...current.refs.keys())
+		} finally {
+			const current = this.thumbnailSources.get(source)
+			if (current) current.fetching = false
+		}
+	}
+
+	/**
+	 * Drop a feedback's interest in a source. When the last feedback for a source goes
+	 * away, its polling loop is stopped and its cached image is freed.
+	 * @param {string} source - The source unique ID
+	 * @param {string} feedbackId - The feedback instance id
+	 */
+	releaseThumbnailRef(source, feedbackId) {
+		const entry = this.thumbnailSources.get(source)
+		if (!entry) return
+
+		entry.refs.delete(feedbackId)
+		if (entry.refs.size === 0) {
+			if (entry.timer) clearInterval(entry.timer)
+			this.thumbnailSources.delete(source)
+			this.log('debug', `Stopped thumbnail polling for source ${source}`)
+		} else {
+			// The fastest feedback may have been removed; relax the polling interval
+			this.updateThumbnailTimer(source)
+		}
+	}
+
+	/**
+	 * Unsubscribe from a thumbnail feedback (feedback removed or its control deleted).
 	 * @param {Object} feedback - The feedback object
 	 */
 	unsubscribeThumbnailFeedback(feedback) {
 		const feedbackId = feedback.id
-
-		this.log('debug', `Unsubscribing from thumbnail feedback ${feedbackId}`)
-
-		// Clear the timer
-		const timer = this.thumbnailTimers.get(feedbackId)
-		if (timer) {
-			clearInterval(timer)
-			this.thumbnailTimers.delete(feedbackId)
-		}
-
-		// Remove the feedback
-		this.thumbnailFeedbacks.delete(feedbackId)
+		const source = this.thumbnailFeedbackSource.get(feedbackId) ?? feedback.options.source
+		this.thumbnailFeedbackSource.delete(feedbackId)
+		if (source !== undefined) this.releaseThumbnailRef(source, feedbackId)
 	}
 
 	/**
@@ -484,5 +561,3 @@ class MovieRecorderInstance extends InstanceBase {
 		return undefined
 	}
 }
-
-runEntrypoint(MovieRecorderInstance, upgradeScripts)

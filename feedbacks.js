@@ -160,6 +160,9 @@ export function getFeedbacks() {
 		type: 'advanced',
 		name: 'Source Thumbnail',
 		description: 'Display the source thumbnail on the button',
+		// Tell Companion 5.0 this advanced feedback overrides the button image (png64),
+		// so it auto-configures the image override instead of requiring manual setup.
+		affectedProperties: ['png64'],
 		options: [
 			{
 				type: 'dropdown',
@@ -178,14 +181,14 @@ export function getFeedbacks() {
 				max: 10000,
 			},
 		],
-		subscribe: (feedback) => {
-			this.subscribeThumbnailFeedback(feedback)
-		},
 		unsubscribe: (feedback) => {
 			this.unsubscribeThumbnailFeedback(feedback)
 		},
-		callback: async (feedback) => {
-			return this.getThumbnailImage(feedback.options.source)
+		callback: (feedback) => {
+			// Ensure this source is being polled, then return the shared cached image.
+			// The actual fetch happens once per source (see requestThumbnail), not per feedback.
+			this.requestThumbnail(feedback)
+			return this.thumbnailSources.get(feedback.options.source)?.image
 		},
 	}
 	return feedbacks

@@ -1,5 +1,6 @@
 {
 	"id": "softron-movierecorder",
+	"type": "connection",
 	"name": "softron-movierecorder",
 	"shortname": "MovieRecorder",
 	"description": "Module to control MovieRecorder",
